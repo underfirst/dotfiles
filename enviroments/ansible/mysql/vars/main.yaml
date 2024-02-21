@@ -1,0 +1,13 @@
+mysql_root_password: "password"
+mysql_databases:
+  - name: light_manager
+    encoding: utf8mb4
+    collation: utf8mb4_bin
+  - name: darts_log
+    encoding: utf8mb4
+    collation: utf8mb4_bin
+mysql_users:
+  - name: mysql_user
+    host: "%"
+    password: mysql_password
+    priv: "*.*:ALL"

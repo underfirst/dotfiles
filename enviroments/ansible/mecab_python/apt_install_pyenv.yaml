@@ -1,0 +1,41 @@
+- name: apt update
+  apt:
+    update_cache: yes
+- name: apt upgrade
+  apt:
+    upgrade: yes
+- name: set locale
+  shell: localedef -f UTF-8 -i ja_JP ja_JP.UTF-8
+- name: install python deps
+  apt:
+    name:
+      - make
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - wget
+      - curl
+      - llvm
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - libffi-dev
+      - liblzma-dev
+      - git
+- name: get pyenv installer
+  get_url:
+    url: https://pyenv.run
+    dest: /tmp/pyenv.sh
+    mode: u=rwx,g=rx,o=rx
+- name: install pyenv
+  shell: |
+    bash /tmp/pyenv.sh
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+    . ~/.bashrc

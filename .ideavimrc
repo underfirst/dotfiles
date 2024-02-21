@@ -1,0 +1,136 @@
+syntax on
+filetype plugin indent on
+
+set fenc=utf-8
+set encoding=utf-8
+set fileencoding=utf-8
+set t_Co=256
+
+
+
+""""""""""""""""""""""""""""""
+" Vi settings
+""""""""""""""""""""""""""""""
+""""""""""
+" system settings
+""""""""""
+set nocompatible                " be iMproved, required
+set mouse=a                     " マウスモード有効
+set switchbuf=useopen           " 新しくひらく代わりにすでに開いているバッファで開く
+set autoread                    " viで変更がない状態で, 外部で変更があったとき読みだす
+set nobackup                    " バックアップしない
+set nowritebackup               " バックアップファイルを作らない
+set noswapfile                  " .swapファイルを作らない
+set textwidth                   " 入力されているテキストの最大幅を無効にする
+set hidden                      " 編集中で保存されていないファイルがあるときに他のファイルを開けるか？
+set backspace=indent,eol,start  " バックスペースで各種削除
+set whichwrap=b,s,h,l,<,>,[,],~ " 行頭で戻ると上の行末に行く的な基本操作
+set nostartofline               " 移動コマンドや短形選択で, デフォルトではカーソル行の行頭に行くが, カーソル位置を現在位置にキープ.
+set visualbell t_vb=            " ビープ音を消す
+set wildmenu                    " コマンドモードでタブ補完でファイル名展開
+set wildmode=longest:full,full  " wildmenuの挙動定義
+set scrolloff =5                " スクロールする時に下が見えるようにする
+set splitright                  " 分割は右に分割
+set history=10000               " コマンド・検索ヒストリのメモリ
+
+""""""""""
+" インデント関連
+""""""""""
+set expandtab                   " tabをスペース展開
+set smarttab                    " shiftwitdhの数だけインデントする
+set autoindent                  " 自動インテンド
+set smartindent                 " C like indentation
+set shiftwidth=4                " tabを推したら代わりに4space
+set tabstop=4                   " 画面に表示されるtab幅
+set softtabstop=4               " vimで挿入されたtabの幅
+set shiftround                  " インデントをshiftwidthの倍数に丸める
+
+""""""""""
+" 検索関連
+""""""""""
+set hlsearch                    " 検索結果をハイライト
+set incsearch                   " インクリメンタル検索
+set ignorecase                  " caseを無視して検索
+set smartcase                   " ignorecaseだが, 大文字を含めた場合は, 大文字の含有を優先する.
+
+""""""""""
+" 表示関連
+""""""""""
+set title                       " タイトルバーにファイル名を表示
+set list                        " 不可視文字を表示
+
+" 不可視文字の表示機能設定
+set listchars=tab:»-,trail:-,extends:»,precedes:«,nbsp:%,eol:↲
+set ruler                       " 右下に, 行・列の番号を表示
+set number                      " 行番号を表示
+set relativenumber              " 現在の行から下の行に関して, 相対的な行数を記載.
+set showmatch                   " 対応カッコをハイライト
+
+" 対応カッコハイライトの対象に, <>を追加
+set matchpairs& matchpairs+=<:>
+set showcmd                     " コマンドを画面下部に表示
+set cursorline                  " カーソル行をハイライト
+set laststatus=2                " 常にstatuslineを表示する
+set showtabline=2               " 複数作業タブがある時tab barを常に表示
+set wrap                        " 長い行は折り返して表示する.
+
+""""""""""
+" 補完関連
+""""""""""
+set infercase                   " 保管の際の大文字小文字の区別をしない.
+
+""""""""""
+" clipboard関連
+""""""""""
+set clipboard+=unnamed          " OSのクリップボードを使用する
+set clipboard=unnamed
+set clipboard+=autoselect
+
+""""""""""
+" Keymap
+""""""""""
+" TABにて対応括弧にジャンプ
+inoremap <Tab> %
+vnoremap <Tab> %
+
+" undo/ redo
+nnoremap <C-z> u
+vnoremap <C-z> u
+inoremap <C-z> u
+nnoremap <C-e> <Esc>:red<CR>
+vnoremap <C-e> <Esc>:red<CR>
+inoremap <C-e> <Esc>:red<CR>
+
+" save
+vnoremap <C-s> <Esc>:w!<CR>
+inoremap <C-s> <Esc>:w!<CR>
+nnoremap <C-s> <Esc>:w!<CR>
+
+" normal mode中でもEnterで改行
+noremap <cr> i<cr><esc>
+
+" nerdtree
+nnoremap <C-f> :NERDTreeFind<CR>        " search current directory with /find command
+
+" quickrun
+" let g:quickrun_no_default_key_mappings = 1
+" nnoremap <C-r> :cclose<CR>:write<CR>:QuickRun -mode n<CR>
+" xnoremap <C-r> earch current directory with /find command<C-U>cclose<CR>:write<CR>gv:QuickRun -mode v<CR>
+
+" tab移動
+nmap <Tab>      gt
+nmap <S-Tab>    gT
+
+" jedi
+" nmap <C-c> \d       " GoTo definition
+
+""""""""""""""""""""""""""""""
+" Plugin settings
+""""""""""""""""""""""""""""""
+""""""""""
+" Plugin installation
+""""""""""
+Plug 'easymotion/vim-easymotion'            " TODO: search
+Plug 'preservim/nerdtree'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'machakann/vim-highlightedyank'
