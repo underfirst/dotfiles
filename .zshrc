@@ -149,8 +149,8 @@ alias hx='eval "$(cat ~/.zsh_history | fzf)"'   # fzf history and execute it.
 alias hc='cat ~/.zsh_history | fzf | pbcopy'    # fzf history and copy it
 
 alias fps="ps aux | percol | awk '{print $2}'"
-alias memo="open '~/Library/Mobile Documents/com~apple~CloudDocs/Memo' -a /Applications/PyCharm.app/"
-alias vimemo="vi '~/Library/Mobile Documents/com~apple~CloudDocs/Memo'"
+alias memo="open '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo' -a /Applications/PyCharm.app/"
+alias vimemo="vi '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo'"
 
 ##############################
 # Function definitions
