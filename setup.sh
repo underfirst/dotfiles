@@ -8,7 +8,7 @@ if [ "$(uname -a)" = 'Darwin' ]; then
   brew upgrade -y;
   brew install cmake jq peco tmux htop sqlite3 \
                zlib fzf git mono autojump thefuck \
-               openssl boost readline xz go watch tcl-tk pyenv;
+               openssl boost readline xz go watch tcl-tk pyenv navi;
   brew install cmd-eikana the-unarchiver rectangle appcleaner alfred \
                google-chrome thunderbird \
                pycharm iterm2 macvim bettertouchtool;
