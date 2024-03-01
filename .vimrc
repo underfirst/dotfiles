@@ -205,6 +205,7 @@ call dein#add('jistr/vim-nerdtree-tabs')
 call dein#add('tmhedberg/SimpylFold')
 call dein#add('machakann/vim-highlightedyank')
 call dein#add('vim-jp/vimdoc-ja')
+call dein#add('nathanaelkane/vim-indent-guides')
 " Syntax checking
 if has('job') && has('channel') && has('timers')
     call dein#add('w0rp/ale')
@@ -358,6 +359,13 @@ let g:NERDCommentEmptyLines = 1
 " SimplylFold
 """"""""""
 let g:SimpylFold_docstring_preview = 1
+
+""""""""""
+" indent guide
+""""""""""
+let g:indent_guides_enable_on_vim_startup = 1
+
+
 
 """"""""""""""""""""
 "Python Settings
