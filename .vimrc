@@ -206,6 +206,7 @@ call dein#add('tmhedberg/SimpylFold')
 call dein#add('machakann/vim-highlightedyank')
 call dein#add('vim-jp/vimdoc-ja')
 call dein#add('nathanaelkane/vim-indent-guides')
+call dein#add('ConradIrwin/vim-bracketed-paste')
 " Syntax checking
 if has('job') && has('channel') && has('timers')
     call dein#add('w0rp/ale')
