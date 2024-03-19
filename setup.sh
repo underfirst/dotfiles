@@ -1,4 +1,4 @@
-if [ "$(uname -a)" = 'Darwin' ]; then
+if [ "$(uname)" = 'Darwin' ]; then
   echo "Start MacOS specific setup."
   if [ ! "$(command -v brew)" ]; then
     echo "Homebrew is not installed, Installing homebrew."
@@ -20,7 +20,7 @@ if [ "$(uname -a)" = 'Darwin' ]; then
   curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
 
   echo "Finish MacOS specific setup.";
-elif [ "$(uname -a)" = 'Linux' ]; then
+elif [ "$(uname)" = 'Linux' ]; then
   if [ ! "$(command -v apt)" ]; then
     echo "Start apt based setup."
     apt -y update;
