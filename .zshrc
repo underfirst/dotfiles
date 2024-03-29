@@ -4,9 +4,13 @@
 export LANG=ja_JP.UTF-8
 export LC_ALL=ja_JP.UTF-8
 export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/Homebrew/bin:${PATH}
 export PATH=~/cod:${PATH}
 export PATH=${PATH}:/Applications/PyCharm.app/Contents/MacOS
-source <(cod init $$ zsh);
+export PATH=${PATH}:/opt/homebrew/opt/mysql-client/bin
+export PYENV_ROOT=${HOME}/.pyenv
+export PATH=${PATH}:${PYENV_ROOT}/bin
+export PATH=${PATH}:$HOME/.nodebrew/current/bin
 
 
 ##############################
@@ -19,6 +23,11 @@ if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -
 # navi
 ##############################
 eval "$(navi widget zsh)"
+
+##############################
+# thefuck
+##############################
+eval "$(thefuck --alias)"
 
 ##############################
 # ZSH ITSELF
@@ -92,7 +101,8 @@ setopt globdots             # ドットの指定なしでドットファイル�
 # 補完機能の強化
 autoload -U compinit
 compinit -C
-
+compinit
+source <(cod init $$ zsh);
 
 
 ##############################
@@ -114,6 +124,11 @@ autoload -Uz _zinit
 ####################
 # zinit plugins
 ####################
+zinit light zdharma-continuum/zinit-annex-as-monitor
+zinit light zdharma-continuum/zinit-annex-bin-gem-node
+zinit light zdharma-continuum/zinit-annex-patch-dl
+zinit light zdharma-continuum/zinit-annex-rust
+
 zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light olets/zsh-abbr
@@ -227,4 +242,23 @@ function drmi() {
   docker images | sed 1d | fzf -q "$1" --no-sort -m --tac | awk '{ print $3 }' | xargs -r docker rmi
 }
 
-if [ tmux has-session 2>/dev/null ]; then tmux attach; else tmux; fi;
+##############################
+# session initialization
+##############################
+session_name="default"
+
+# 1. First you check if a tmux session exists with a given name.
+#tmux has-session -t=$session_name 2> /dev/null
+
+# 2. Create the session if it doesn't exists.
+#if [[ $? -ne 0 ]]; then
+#  TMUX='' tmux new-session -d -s "$session_name"
+#fi
+
+# 3. Attach if outside of tmux, switch if you're in tmux.
+#if [[ -z "$TMUX" ]]; then
+#  tmux attach -t "$session_name"
+#else
+#  tmux switch-client -t "$session_name"
+#fi
+tmux

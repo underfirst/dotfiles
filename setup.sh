@@ -4,6 +4,11 @@ if [ "$(uname)" = 'Darwin' ]; then
     echo "Homebrew is not installed, Installing homebrew."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
+
+  echo 'export PATH=$PATH:/opt/homebrew/bin' >> ~/.zshrc
+  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+  source ~/.zshrc
+
   brew update -y;
   brew upgrade -y;
   brew install cmake jq peco tmux htop sqlite3 \
@@ -15,6 +20,7 @@ if [ "$(uname)" = 'Darwin' ]; then
 
   # iterm2 settings
   rm -rdf ~/dotfiles/terminal-app
+  cd ~/dotfiles;
   git clone https://github.com/dracula/terminal-app terminal-app
   git clone https://github.com/dracula/iterm.git iterm
   curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
@@ -48,6 +54,7 @@ pyenv global 3.10.9
 pyenv rehash
 
 pip install --user --upgrade advance-touch jedi
+cd ~
 git clone https://github.com/dim-an/cod.git
 cd cod
 go build
