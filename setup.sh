@@ -9,8 +9,8 @@ if [ "$(uname)" = 'Darwin' ]; then
   echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
   source ~/.zshrc
 
-  brew update -y;
-  brew upgrade -y;
+  brew update;
+  brew upgrade;
   brew install cmake jq peco tmux htop sqlite3 \
                zlib fzf git mono autojump thefuck \
                openssl boost readline xz go watch tcl-tk pyenv navi;
