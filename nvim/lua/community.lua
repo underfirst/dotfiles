@@ -11,11 +11,9 @@ return {
   -- import/override with your plugins folder
   { import = "astrocommunity.colorscheme.dracula-nvim" },
   { import = "astrocommunity.bars-and-lines.smartcolumn-nvim" },
-  {
-    "m4xshen/smartcolumn.nvim",
-    opts = {
-      colorcolumn = 120,
-      disabled_filetypes = { "help" },
-    },
-  },
+  { import = "astrocommunity.recipes.heirline-vscode-winbar" },
+  { import = "astrocommunity.recipes.heirline-mode-text-statusline" },
+  { import = "astrocommunity.split-and-window.mini-map"},
+  { import = "astrocommunity.editing-support.auto-save-nvim"},
+  { import = "astrocommunity.editing-support.vim-visual-multi" },
 }
