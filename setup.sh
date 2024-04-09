@@ -34,7 +34,7 @@ elif [ "$(uname)" = 'Linux' ]; then
     apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
                    libreadline-dev libsqlite3-dev libopencv-dev tk-dev git \
                    cmake jq peco tmux htop sqlite3 fzf autojump thefuck libz-dev \
-                   golang-go neovim
+                   golang-go neovim zsh
     git clone https://github.com/pyenv/pyenv.git ~/.pyenv;
   fi
 fi
