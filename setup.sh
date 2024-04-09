@@ -25,6 +25,13 @@ if [ "$(uname)" = 'Darwin' ]; then
   git clone https://github.com/dracula/iterm.git iterm
   curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
 
+
+  git clone --branch=master --depth 1 https://github.com/ryanoasis/nerd-fonts.git
+  cd nerd-fonts
+  chmod 755 install.sh
+  ./install.sh
+  cd ..
+
   echo "Finish MacOS specific setup.";
 elif [ "$(uname)" = 'Linux' ]; then
   if [ ! "$(command -v apt)" ]; then
@@ -59,13 +66,6 @@ git clone https://github.com/dim-an/cod.git
 cd cod
 go build
 cd ~
-
-git clone --branch=master --depth 1 https://github.com/ryanoasis/nerd-fonts.git
-cd nerd-fonts
-chmod 755 install.sh
-./install.sh
-cd ..
-
 if [ ! -e ~/.tmux/plugins/tpm ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
