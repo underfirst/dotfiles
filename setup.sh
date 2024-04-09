@@ -27,20 +27,15 @@ if [ "$(uname)" = 'Darwin' ]; then
 
   echo "Finish MacOS specific setup.";
 elif [ "$(uname)" = 'Linux' ]; then
-  if [ ! "$(command -v apt)" ]; then
+  if [ "$(command -v apt)" ]; then
     echo "Start apt based setup."
     apt -y update;
     apt -y upgrade;
     apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
                    libreadline-dev libsqlite3-dev libopencv-dev tk-dev git \
                    cmake jq peco tmux htop sqlite3 fzf autojump thefuck libz-dev \
-                   golang-go
+                   golang-go neovim
     git clone https://github.com/pyenv/pyenv.git ~/.pyenv;
-  elif [ ! "$(command -v yum)" ]; then
-    echo "Start yum based setup."
-    yum -y update;
-    yum -y upgrade;
-    # TODO: yum based install for pyenv, golang (for cod) and etc.
   fi
 fi
 

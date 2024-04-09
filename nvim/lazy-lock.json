@@ -25,7 +25,6 @@
   "indent-blankline.nvim": { "branch": "master", "commit": "3d08501caef2329aba5121b753e903904088f7e6" },
   "lazy.nvim": { "branch": "main", "commit": "bef521ac89c8d423f9d092e37b58e8af0c099309" },
   "lspkind.nvim": { "branch": "master", "commit": "1735dd5a5054c1fb7feaf8e8658dbab925f4f0cf" },
-  "magma-nvim": { "branch": "main", "commit": "ff3deba8a879806a51c005e50782130246143d06" },
   "mason-lspconfig.nvim": { "branch": "main", "commit": "2ba17cecfde8b8c7c7c287909a1e4de895223df6" },
   "mason-null-ls.nvim": { "branch": "main", "commit": "e270134d83ba59425edc53356c6fd337b61bb8dd" },
   "mason-nvim-dap.nvim": { "branch": "main", "commit": "3614a39aae98ccd34124b072939d6283853b3dd2" },
@@ -63,6 +62,7 @@
   "todo-comments.nvim": { "branch": "main", "commit": "a7e39ae9e74f2c8c6dc4eea6d40c3971ae84752d" },
   "toggleterm.nvim": { "branch": "main", "commit": "193786e0371e3286d3bc9aa0079da1cd41beaa62" },
   "venv-selector.nvim": { "branch": "main", "commit": "3c57922256e7e26205a25f5a42ecf7104d9f2c78" },
+  "vim-better-whitespace": { "branch": "master", "commit": "029f35c783f1b504f9be086b9ea757a36059c846" },
   "vim-illuminate": { "branch": "master", "commit": "305bf07b919ac526deb5193280379e2f8b599926" },
   "vim-visual-multi": { "branch": "master", "commit": "e2ff111f123da6cf97f95b96b10eb95854f953c9" },
   "which-key.nvim": { "branch": "main", "commit": "ce741eb559c924d72e3a67d2189ad3771a231414" }
