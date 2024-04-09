@@ -72,3 +72,4 @@ ln -s ~/dotfiles/vim ~/.vim
 ln -s ~/dotfiles/.ideavimrc .ideavimrc
 mkdir -p ~/.config
 ln -s ~/dotfiles/nvim ~/.config/nvim
+echo 'source ~/dotfiles/.zshrc' >> ~/.zshrc
