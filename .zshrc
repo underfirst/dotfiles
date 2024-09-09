@@ -167,9 +167,8 @@ alias hx='eval "$(cat ~/.zsh_history | fzf)"'   # fzf history and execute it.
 alias hc='cat ~/.zsh_history | fzf | pbcopy'    # fzf history and copy it
 
 alias fps="ps aux | percol | awk '{print $2}'"
-alias memo="open '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo' -a /Applications/PyCharm.app/"
-alias vimemo="vi '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo'"
-
+alias memo="cd '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo' && nvim"
+alias todo="nvim '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo/todo.md'"
 ##############################
 # Function definitions
 ##############################
@@ -227,7 +226,8 @@ function ds() {
 
 # Select a docker container to remove
 function drm() {
-  local cid
+
+    local cid
   cid=$(docker ps -a | sed 1d | fzf -q "$1" | awk '{print $1}')
   [ -n "$cid" ] && docker rm "$cid"
 }
