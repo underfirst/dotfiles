@@ -5,26 +5,25 @@ if [ "$(uname)" = 'Darwin' ]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 
-  echo 'export PATH=$PATH:/opt/homebrew/bin' >> ~/.zshrc
-  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+  echo 'export PATH=$PATH:/opt/homebrew/bin' >>~/.zshrc
+  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.zshrc
   source ~/.zshrc
 
-  brew update;
-  brew upgrade;
+  brew update
+  brew upgrade
   brew install cmake jq peco tmux htop sqlite3 \
-               zlib fzf git mono autojump thefuck \
-               openssl boost readline xz go watch tcl-tk pyenv navi;
+    zlib fzf git mono autojump thefuck \
+    openssl boost readline xz go watch tcl-tk pyenv navi
   brew install cmd-eikana the-unarchiver rectangle appcleaner alfred \
-               google-chrome thunderbird \
-               pycharm iterm2 macvim bettertouchtool;
+    google-chrome thunderbird \
+    pycharm iterm2 bettertouchtool
 
   # iterm2 settings
   rm -rdf ~/dotfiles/terminal-app
-  cd ~/dotfiles;
+  cd ~/dotfiles
   git clone https://github.com/dracula/terminal-app terminal-app
   git clone https://github.com/dracula/iterm.git iterm
   curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
-
 
   git clone --branch=master --depth 1 https://github.com/ryanoasis/nerd-fonts.git
   cd nerd-fonts
@@ -32,30 +31,30 @@ if [ "$(uname)" = 'Darwin' ]; then
   ./install.sh
   cd ..
 
-  echo "Finish MacOS specific setup.";
+  echo "Finish MacOS specific setup."
 elif [ "$(uname)" = 'Linux' ]; then
   if [ "$(command -v apt)" ]; then
     echo "Start apt based setup."
-    apt -y update;
-    apt -y upgrade;
+    apt -y update
+    apt -y upgrade
     apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
-                   libreadline-dev libsqlite3-dev libopencv-dev tk-dev git \
-                   cmake jq peco tmux htop sqlite3 fzf autojump thefuck libz-dev \
-                   golang-go neovim zsh
-    git clone https://github.com/pyenv/pyenv.git ~/.pyenv;
+      libreadline-dev libsqlite3-dev libopencv-dev tk-dev git \
+      cmake jq peco tmux htop sqlite3 fzf autojump thefuck libz-dev \
+      golang-go neovim zsh
+    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   fi
 fi
 
-echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.zshrc
-echo 'eval "$(pyenv init --path)"' >> ~/.zshrc
-echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.zshrc
+echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >>~/.zshrc
+echo 'eval "$(pyenv init --path)"' >>~/.zshrc
+echo 'eval "$(pyenv virtualenv-init -)"' >>~/.zshrc
 
 source ~/.zshrc
 pyenv install 3.10.9
 pyenv global 3.10.9
 pyenv rehash
 
-pip install --user --upgrade advance-touch jedi
+pip install --user --upgrade advance-touch
 cd ~
 git clone https://github.com/dim-an/cod.git
 cd cod
@@ -72,4 +71,4 @@ ln -s ~/dotfiles/vim ~/.vim
 ln -s ~/dotfiles/.ideavimrc .ideavimrc
 mkdir -p ~/.config
 ln -s ~/dotfiles/nvim ~/.config/nvim
-echo 'source ~/dotfiles/.zshrc' >> ~/.zshrc
+echo 'source ~/dotfiles/.zshrc' >>~/.zshrc

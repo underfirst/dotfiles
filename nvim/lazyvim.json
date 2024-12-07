@@ -4,6 +4,7 @@
     "lazyvim.plugins.extras.coding.neogen",
     "lazyvim.plugins.extras.dap.core",
     "lazyvim.plugins.extras.editor.aerial",
+    "lazyvim.plugins.extras.editor.harpoon2",
     "lazyvim.plugins.extras.editor.illuminate",
     "lazyvim.plugins.extras.editor.navic",
     "lazyvim.plugins.extras.lang.cmake",
@@ -17,10 +18,11 @@
     "lazyvim.plugins.extras.lang.toml",
     "lazyvim.plugins.extras.lang.typescript",
     "lazyvim.plugins.extras.lang.yaml",
+    "lazyvim.plugins.extras.test.core",
     "lazyvim.plugins.extras.ui.treesitter-context"
   ],
   "news": {
-    "NEWS.md": "6520"
+    "NEWS.md": "7107"
   },
-  "version": 6
+  "version": 7
 }
