@@ -11,12 +11,7 @@ if [ "$(uname)" = 'Darwin' ]; then
 
   brew update
   brew upgrade
-  brew install cmake jq peco tmux htop sqlite3 \
-    zlib fzf git mono autojump thefuck \
-    openssl boost readline xz go watch tcl-tk pyenv navi
-  brew install cmd-eikana the-unarchiver rectangle appcleaner alfred \
-    google-chrome thunderbird \
-    pycharm iterm2 bettertouchtool
+  brew bundle install
 
   # iterm2 settings
   rm -rdf ~/dotfiles/terminal-app
