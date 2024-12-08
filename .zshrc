@@ -11,7 +11,8 @@ export PATH=${PATH}:/opt/homebrew/opt/mysql-client/bin
 export PYENV_ROOT=${HOME}/.pyenv
 export PATH=${PATH}:${PYENV_ROOT}/bin
 export PATH=${PATH}:$HOME/.nodebrew/current/bin
-
+# TODO: if nvim existed.
+export EDITOR=nvim
 
 ##############################
 # pyenv
@@ -155,6 +156,8 @@ alias m='mkdir -p'
 alias p='python'
 alias q=exit
 alias t=tmux
+alias lsn="nnn -de"
+
 
 alias ipy=ipython
 alias jp='jupyter notebook'
@@ -223,6 +226,25 @@ vdot() {
   cd ~/dotfiles/;
   nvim;
 }
+
+function ranger() {
+    if [ -z "$RANGER_LEVEL" ]; then
+        /usr/local/bin/ranger $@
+    else
+        exit
+    fi
+}
+
+
+rcd() {
+    temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
+    ranger --choosedir="$temp_file" -- "${@:-$PWD}"
+    if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
+        cd -- "$chosen_dir"
+    fi
+    rm -f -- "$temp_file"
+}
+
 
 ##############################
 # session initialization

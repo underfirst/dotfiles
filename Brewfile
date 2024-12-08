@@ -82,6 +82,11 @@ brew "portaudio"
 brew "postgresql@14"
 brew "rename"
 brew "yammerjp/tap/pdef"
+brew "ranger"
+brew "fx"
+brew "lazydocker"
+tap "joerdav/xc"
+brew "xc"
 
 if OS.mac?
   # utils
