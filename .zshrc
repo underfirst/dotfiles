@@ -156,8 +156,7 @@ alias m='mkdir -p'
 alias p='python'
 alias q=exit
 alias t=tmux
-alias lsn="nnn -de"
-
+alias n=nvim
 
 alias ipy=ipython
 alias jp='jupyter notebook'
