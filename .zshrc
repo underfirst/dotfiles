@@ -211,28 +211,28 @@ fkill() {
 ####################
 # nvim snippet
 ####################
-vsnip() {
+vs() {
   cd ~/Documents/snippets/;
   nvim
 }
 
-vmemo() {
+vm() {
   cd  ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/Memo/;
   nvim;
 }
 
-vdot() {
+vd() {
   cd ~/dotfiles/;
   nvim;
 }
 
-function ranger() {
-    if [ -z "$RANGER_LEVEL" ]; then
-        /usr/local/bin/ranger $@
-    else
-        exit
-    fi
-}
+#function ranger() {
+#    if [ -z "$RANGER_LEVEL" ]; then
+#        /usr/local/bin/ranger $@
+#    else
+#        exit
+#    fi
+#}
 
 
 rcd() {
