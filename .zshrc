@@ -149,7 +149,6 @@ zinit light gko/ssh-connect
 alias c=clear
 alias d='du -h -d1'
 alias f='find . -name'
-alias h=tldr
 alias k=kill
 alias l='ls -alh'
 alias m='mkdir -p'
@@ -157,6 +156,7 @@ alias p='python'
 alias q=exit
 alias t=tmux
 alias n=nvim
+
 
 alias ipy=ipython
 alias jp='jupyter notebook'
@@ -171,6 +171,11 @@ alias hc='cat ~/.zsh_history | fzf | pbcopy'    # fzf history and copy it
 alias fps="ps aux | percol | awk '{print $2}'"
 alias memo="cd '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo' && nvim"
 alias todo="nvim '$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo/todo.md'"
+
+alias ghrc="gh repo create"
+alias gpom="git pull origin main"
+alias frepo="ghq list | fzf | xargs -I{} cd $(ghq root)/{}"
+alias proot='cd $(git rev-parse --show-toplevel)'
 ##############################
 # Function definitions
 ##############################

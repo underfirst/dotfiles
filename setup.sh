@@ -11,10 +11,10 @@ if [ ! "$(command -v brew)" ]; then
   fi
 fi
 
-if [ !"$(command -v zsh)" ]; then
+if [ ! "$(command -v zsh)" ]; then
   brew install zsh
+  chsh -s "$(which zsh)"
 fi
-chsh -s $(which zsh)
 if [ "$(uname)" = "Linux" ]; then
   exec zsh -l
 fi
