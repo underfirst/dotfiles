@@ -16,7 +16,7 @@ if [ !"$(command -v zsh)" ]; then
 fi
 chsh -s $(which zsh)
 if [ "$(uname)" = "Linux" ]; then
-  zsh
+  exec zsh
 fi
 source ~/.zshrc
 

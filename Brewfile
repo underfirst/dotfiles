@@ -42,7 +42,6 @@ brew "navi"
 brew "tldr"
 brew "ranger"
 brew "fx"
-brew "lazydocker"
 tap "joerdav/xc"
 brew "xc"
 
@@ -97,6 +96,7 @@ if OS.mac?
   brew "1password-cli"
   brew "postgresql@14"
   brew "yammerjp/tap/pdef"
+  brew "lazydocker"
 
   # app
   cask "jordanbaird-ice"
