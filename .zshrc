@@ -264,4 +264,6 @@ session_name="default"
 #else
 #  tmux switch-client -t "$session_name"
 #fi
-tmux
+if [ "$(uname)" = "Darwin" ]; then
+  tmux
+fi;
