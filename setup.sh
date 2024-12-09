@@ -1,17 +1,36 @@
+#install brew
+if [ ! "$(command -v brew)" ]; then
+  echo "Homebrew is not installed, Installing homebrew."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if [ "$(uname)" = "Darwin" ]; then
+    echo 'export PATH=$PATH:/opt/homebrew/bin' >>~/.zshrc
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.zshrc
+  elif [ "$(uname)" = "Linux" ]; then
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc
+  fi
+fi
+
+if [ !"$(command -v zsh)" ]; then
+  brew install zsh
+fi
+chsh -s $(which zsh)
+source ~/.zshrc
+
+brew update
+brew upgrade
+brew bundle install
+
+echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >>~/.zshrc
+echo 'eval "$(pyenv init --path)"' >>~/.zshrc
+echo 'eval "$(pyenv virtualenv-init -)"' >>~/.zshrc
+
+source ~/.zshrc
+pyenv install 3.10.9
+pyenv global 3.10.9
+pyenv rehash
+
 if [ "$(uname)" = 'Darwin' ]; then
   echo "Start MacOS specific setup."
-  if [ ! "$(command -v brew)" ]; then
-    echo "Homebrew is not installed, Installing homebrew."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  fi
-
-  echo 'export PATH=$PATH:/opt/homebrew/bin' >>~/.zshrc
-  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.zshrc
-  source ~/.zshrc
-
-  brew update
-  brew upgrade
-  brew bundle install
 
   # iterm2 settings
   rm -rdf ~/dotfiles/terminal-app
@@ -33,23 +52,10 @@ elif [ "$(uname)" = 'Linux' ]; then
     apt -y update
     apt -y upgrade
     apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
-      libreadline-dev libsqlite3-dev libopencv-dev tk-dev git \
-      cmake jq peco tmux htop sqlite3 fzf autojump thefuck libz-dev \
-      golang-go neovim zsh
-    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+      libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev
   fi
 fi
 
-echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >>~/.zshrc
-echo 'eval "$(pyenv init --path)"' >>~/.zshrc
-echo 'eval "$(pyenv virtualenv-init -)"' >>~/.zshrc
-
-source ~/.zshrc
-pyenv install 3.10.9
-pyenv global 3.10.9
-pyenv rehash
-
-pip install --user --upgrade advance-touch
 cd ~
 git clone https://github.com/dim-an/cod.git
 cd cod

@@ -38,8 +38,16 @@ brew "tree"
 brew "tmux"
 brew "tmux-mem-cpu-load"
 brew "autojump"
+brew "navi"
+brew "tldr"
+brew "ranger"
+brew "fx"
+brew "lazydocker"
+tap "joerdav/xc"
+brew "xc"
 
 
+# misc
 brew "little-cms2"
 brew "webp"
 brew "jpeg-xl"
@@ -79,22 +87,16 @@ brew "nkf"
 brew "pandoc"
 brew "percol"
 brew "portaudio"
-brew "postgresql@14"
 brew "rename"
-brew "yammerjp/tap/pdef"
-brew "ranger"
-brew "fx"
-brew "lazydocker"
-tap "joerdav/xc"
-brew "xc"
+
 
 if OS.mac?
   # utils
-  brew "navi"
-  brew "tldr"
   brew "jpegoptim"
   brew "watch"
   brew "1password-cli"
+  brew "postgresql@14"
+  brew "yammerjp/tap/pdef"
 
   # app
   cask "jordanbaird-ice"
@@ -113,6 +115,4 @@ if OS.mac?
   cask "todoist"
   cask "1password"
   cask "skitch"
-  cask "zoom"
-  
 end
