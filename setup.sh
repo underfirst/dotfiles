@@ -33,6 +33,8 @@ pyenv install 3.10.9
 pyenv global 3.10.9
 pyenv rehash
 
+npm install -g commitzen git-cz
+
 if [ "$(uname)" = 'Darwin' ]; then
   echo "Start MacOS specific setup."
 
