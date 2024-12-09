@@ -3,22 +3,30 @@
 ##############################
 export LANG=ja_JP.UTF-8
 export LC_ALL=ja_JP.UTF-8
+
 export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/Homebrew/bin:${PATH}
-export PATH=~/cod:${PATH}
-export PATH=${PATH}:/Applications/PyCharm.app/Contents/MacOS
+export PATH=${HOME}/cod:${PATH}
 export PATH=${PATH}:/opt/homebrew/opt/mysql-client/bin
 export PYENV_ROOT=${HOME}/.pyenv
 export PATH=${PATH}:${PYENV_ROOT}/bin
 export PATH=${PATH}:$HOME/.nodebrew/current/bin
-# TODO: if nvim existed.
-export EDITOR=nvim
+export PATH=$HOME/.pyenv/bin:$PATH
+
+if [ $(command -v nvim) ]; then
+  export EDITOR=nvim
+fi
 
 ##############################
 # pyenv
 ##############################
-if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+eval "$(pyenv init --path)";
+if [ $(command -v pyenv) ];then
+  eval "$(pyenv init -)"; 
+fi
+if [ $(command -v pyenv virtualenv-init) ]; then
+  eval "$(pyenv virtualenv-init -)";
+fi
 
 ##############################
 # navi

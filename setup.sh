@@ -1,4 +1,6 @@
-#install brew
+########################################
+# Install brew package manager
+########################################
 if [ ! "$(command -v brew)" ]; then
   echo "Homebrew is not installed, Installing homebrew."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -11,6 +13,9 @@ if [ ! "$(command -v brew)" ]; then
   fi
 fi
 
+########################################
+# Set zsh as default shell
+########################################
 if [ ! "$(command -v zsh)" ]; then
   brew install zsh
   chsh -s "$(which zsh)"
@@ -20,20 +25,21 @@ if [ "$(uname)" = "Linux" ]; then
 fi
 source ~/.zshrc
 
+########################################
+# Install common packages
+########################################
 brew update
 brew upgrade
 brew bundle install
-
-echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >>~/.zshrc
-echo 'eval "$(pyenv init --path)"' >>~/.zshrc
-echo 'eval "$(pyenv virtualenv-init -)"' >>~/.zshrc
-
 source ~/.zshrc
+
+# Install Python
 pyenv install 3.10.9
 pyenv global 3.10.9
 pyenv rehash
 
-npm install -g commitzen git-cz
+# TODO: node:
+npm install -g commitzen cz-git
 
 if [ "$(uname)" = 'Darwin' ]; then
   echo "Start MacOS specific setup."
@@ -45,6 +51,7 @@ if [ "$(uname)" = 'Darwin' ]; then
   git clone https://github.com/dracula/iterm.git iterm
   curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
 
+  # TODO: use brew
   git clone --branch=master --depth 1 https://github.com/ryanoasis/nerd-fonts.git
   cd nerd-fonts
   chmod 755 install.sh
@@ -62,16 +69,21 @@ elif [ "$(uname)" = 'Linux' ]; then
   fi
 fi
 
+# Install cod
 cd ~
 git clone https://github.com/dim-an/cod.git
 cd cod
 go build
 cd ~
+
+# Install tmux plugin manager
 if [ ! -e ~/.tmux/plugins/tpm ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
+########################################
 # common dotfile settings
+# ########################################
 ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
 ln -s ~/dotfiles/.vimrc ~/.vimrc
 ln -s ~/dotfiles/vim ~/.vim
