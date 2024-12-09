@@ -7,6 +7,7 @@ if [ ! "$(command -v brew)" ]; then
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.zshrc
   elif [ "$(uname)" = "Linux" ]; then
     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
   fi
 fi
 
@@ -14,6 +15,9 @@ if [ !"$(command -v zsh)" ]; then
   brew install zsh
 fi
 chsh -s $(which zsh)
+if [ "$(uname)" = "Linux" ]; then
+  zsh
+fi
 source ~/.zshrc
 
 brew update
