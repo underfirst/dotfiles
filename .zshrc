@@ -184,6 +184,9 @@ alias ghrc="gh repo create"
 alias gpom="git pull origin main"
 alias frepo="ghq list | fzf | xargs -I{} cd $(ghq root)/{}"
 alias proot='cd $(git rev-parse --show-toplevel)'
+
+
+
 ##############################
 # Function definitions
 ##############################
@@ -221,6 +224,7 @@ fkill() {
     echo $pid | xargs kill -${1:-9}
   fi
 }
+
 ####################
 # nvim snippet
 ####################
@@ -244,6 +248,11 @@ vssh() {
   nvim config;
 }
 
+
+####################
+# Misc
+####################
+
 #function ranger() {
 #    if [ -z "$RANGER_LEVEL" ]; then
 #        /usr/local/bin/ranger $@
@@ -262,6 +271,24 @@ rcd() {
     rm -f -- "$temp_file"
 }
 
+
+wo() {
+  log_file="${HOME}/Documents/page.log"
+  local url="$1"
+  local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+
+  if [[ $url == http* ]]; then
+    # httpから始まる場合、urlをopenコマンドで開く
+    open "$url"
+    echo "$timestamp $url" >> "$log_file"
+  else
+    # httpから始まらない場合、url encodeしてGoogle検索を行う
+    encoded_url=$(echo "$url" | jq -sRr @uri)
+    search_url="https://www.google.com/search?q=$encoded_url"
+    open "$search_url"
+    echo "$timestamp $url" >> "$log_file"
+  fi
+}
 
 ##############################
 # session initialization
