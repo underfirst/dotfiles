@@ -239,6 +239,11 @@ vd() {
   nvim;
 }
 
+vssh() {
+  cd ~/.ssh/;
+  nvim config;
+}
+
 #function ranger() {
 #    if [ -z "$RANGER_LEVEL" ]; then
 #        /usr/local/bin/ranger $@
