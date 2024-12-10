@@ -45,6 +45,9 @@ brew "ranger"
 brew "fx"
 tap "joerdav/xc"
 brew "xc"
+brew "pueue"
+brew "gaze"
+brew "tmux-xpanes"
 
 
 # misc
