@@ -163,7 +163,7 @@ alias m='mkdir -p'
 alias p='python'
 alias q=exit
 alias t=tmux
-alias n=nvim
+alias vi=nvim
 
 
 alias ipy=ipython
