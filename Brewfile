@@ -48,7 +48,7 @@ brew "xc"
 brew "pueue"
 brew "gaze"
 brew "tmux-xpanes"
-
+brew "tabiew"
 
 # misc
 brew "little-cms2"
