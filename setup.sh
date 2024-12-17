@@ -1,6 +1,7 @@
 ########################################
 # Install brew package manager
 ########################################
+echo "Install brew."
 if [ ! "$(command -v brew)" ]; then
   echo "Homebrew is not installed, Installing homebrew."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -16,6 +17,7 @@ fi
 ########################################
 # Set zsh as default shell
 ########################################
+echo "Check default shell."
 if [ ! "$(command -v zsh)" ]; then
   brew install zsh
   chsh -s "$(which zsh)"
@@ -28,6 +30,7 @@ source ~/.zshrc
 ########################################
 # Install common packages
 ########################################
+echo "Install common packages with brew."
 brew update
 brew upgrade
 brew bundle install
@@ -42,7 +45,7 @@ pyenv rehash
 npm install -g commitzen cz-git
 
 if [ "$(uname)" = 'Darwin' ]; then
-  echo "Start MacOS specific setup."
+  echo "Setup MacOS specific packages."
 
   # iterm2 settings
   rm -rdf ~/dotfiles/terminal-app
@@ -60,6 +63,7 @@ if [ "$(uname)" = 'Darwin' ]; then
 
   echo "Finish MacOS specific setup."
 elif [ "$(uname)" = 'Linux' ]; then
+  echo "Setup Linux specific packages."
   if [ "$(command -v apt)" ]; then
     echo "Start apt based setup."
     apt -y update
@@ -83,7 +87,8 @@ fi
 
 ########################################
 # common dotfile settings
-# ########################################
+########################################
+echo "Link dotfiles."
 ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
 ln -s ~/dotfiles/.vimrc ~/.vimrc
 ln -s ~/dotfiles/vim ~/.vim
