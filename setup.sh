@@ -22,9 +22,9 @@ if [ ! "$(command -v zsh)" ]; then
   brew install zsh
   chsh -s "$(which zsh)"
 fi
-if [ "$(uname)" = "Linux" ]; then
-  exec zsh -l
-fi
+#if [ "$(uname)" = "Linux" ]; then
+#  exec zsh -l
+#fi
 source ~/.zshrc
 
 ########################################
