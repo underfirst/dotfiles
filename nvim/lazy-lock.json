@@ -9,6 +9,7 @@
   "clangd_extensions.nvim": { "branch": "main", "commit": "8f7b72100883e0e34400d9518d40a03f21e4d0a6" },
   "cmake-tools.nvim": { "branch": "master", "commit": "4e134ed5532e5fc3c0331d1b38b7acaa4bb31894" },
   "code_runner.nvim": { "branch": "main", "commit": "65218f8f646fe61e506090522df357539642ae83" },
+  "codecompanion.nvim": { "branch": "main", "commit": "a2509290f823329a77c6c182f9d55cbc7b2e2f3d" },
   "conform.nvim": { "branch": "master", "commit": "70019124aa4f2e6838be9fbd2007f6d13b27a96d" },
   "crates.nvim": { "branch": "main", "commit": "bd35b13e94a292ee6e32c351e05ca2202dc9f070" },
   "flash.nvim": { "branch": "main", "commit": "34c7be146a91fec3555c33fe89c7d643f6ef5cf1" },
