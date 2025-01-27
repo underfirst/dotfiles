@@ -12,7 +12,7 @@ export PYENV_ROOT=${HOME}/.pyenv
 export PATH=${PATH}:${PYENV_ROOT}/bin
 export PATH=${PATH}:$HOME/.nodebrew/current/bin
 export PATH=$HOME/.pyenv/bin:$PATH
-
+export PS1="%F{green}%B%n@%m%f %F{blue}%. %f%b%#" 
 if [ $(command -v nvim) ]; then
   export EDITOR=nvim
 fi
