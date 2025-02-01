@@ -1,4 +1,41 @@
 ########################################
+# Install OS Specific common packages
+########################################
+if [ "$(uname)" = 'Darwin' ]; then
+  echo "Setup MacOS specific packages."
+
+  # iterm2 settings
+  rm -rdf ~/dotfiles/terminal-app
+  cd ~/dotfiles
+  git clone https://github.com/dracula/terminal-app terminal-app
+  git clone https://github.com/dracula/iterm.git iterm
+  curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
+
+  git clone --branch=master --depth 1 https://github.com/ryanoasis/nerd-fonts.git
+  cd nerd-fonts
+  chmod 755 install.sh
+  ./install.sh
+  cd ..
+  echo "Finish MacOS specific setup."
+elif [ "$(uname)" = 'Linux' ]; then
+  echo "Setup Linux specific packages."
+  if [ "$(command -v apt)" ]; then
+    echo "Start apt based setup."
+    apt -y update
+    export DEBIAN_FRONTEND=noninteractive
+    export TZ="Asia/Tokyo"
+    apt install -y tzdata
+    ln -fs /usr/share/zoneinfo/$TZ/ /etc/localtime
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+    apt -y upgrade
+
+    apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
+      libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl
+  fi
+fi
+
+########################################
 # Install brew package manager
 ########################################
 echo "Install brew."
@@ -22,9 +59,6 @@ if [ ! "$(command -v zsh)" ]; then
   brew install zsh
   chsh -s "$(which zsh)"
 fi
-#if [ "$(uname)" = "Linux" ]; then
-#  exec zsh -l
-#fi
 source ~/.zshrc
 
 ########################################
@@ -36,42 +70,8 @@ brew upgrade
 brew bundle install
 source ~/.zshrc
 
-# Install Python
-pyenv install 3.10.9
-pyenv global 3.10.9
-pyenv rehash
-
 # TODO: node:
 npm install -g commitzen cz-git
-
-if [ "$(uname)" = 'Darwin' ]; then
-  echo "Setup MacOS specific packages."
-
-  # iterm2 settings
-  rm -rdf ~/dotfiles/terminal-app
-  cd ~/dotfiles
-  git clone https://github.com/dracula/terminal-app terminal-app
-  git clone https://github.com/dracula/iterm.git iterm
-  curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
-
-  # TODO: use brew
-  git clone --branch=master --depth 1 https://github.com/ryanoasis/nerd-fonts.git
-  cd nerd-fonts
-  chmod 755 install.sh
-  ./install.sh
-  cd ..
-
-  echo "Finish MacOS specific setup."
-elif [ "$(uname)" = 'Linux' ]; then
-  echo "Setup Linux specific packages."
-  if [ "$(command -v apt)" ]; then
-    echo "Start apt based setup."
-    apt -y update
-    apt -y upgrade
-    apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
-      libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev
-  fi
-fi
 
 # Install cod
 cd ~

@@ -16,7 +16,7 @@ brew "go"
 brew "kubernetes-cli", link: false
 brew "wget"
 brew "node"
-brew "pyenv"
+brew "uv"
 brew "nodebrew"
 brew "libzip"
 brew "ripgrep"

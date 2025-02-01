@@ -8,25 +8,12 @@ export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/Homebrew/bin:${PATH}
 export PATH=${HOME}/cod:${PATH}
 export PATH=${PATH}:/opt/homebrew/opt/mysql-client/bin
-export PYENV_ROOT=${HOME}/.pyenv
-export PATH=${PATH}:${PYENV_ROOT}/bin
 export PATH=${PATH}:$HOME/.nodebrew/current/bin
-export PATH=$HOME/.pyenv/bin:$PATH
 export PS1="%F{green}%B%n@%m%f %F{blue}%. %f%b%#" 
 if [ $(command -v nvim) ]; then
   export EDITOR=nvim
 fi
 
-##############################
-# pyenv
-##############################
-eval "$(pyenv init --path)";
-if [ $(command -v pyenv) ];then
-  eval "$(pyenv init -)"; 
-fi
-if [ $(command -v pyenv virtualenv-init) ]; then
-  eval "$(pyenv virtualenv-init -)";
-fi
 
 ##############################
 # navi
@@ -49,7 +36,7 @@ setopt auto_resume          # サスペンド中のプロセスと同じコマ�
 setopt correct              # スペルチェック
 setopt no_beep              # ビープ音を鳴らさない
 setopt print_eight_bit      # 出力時8ビットを通す
-setopt no_tify              # バックグランドジョブが終了時知らせてくれる
+setopt notify              # バックグランドジョブが終了時知らせてくれる
 setopt prompt_subst         # プロンプト定義内で変数置換やコマンド置換を扱う
 setopt print_exit_value     # 戻り値が 0 以外の場合終了コードを表示
 
@@ -253,16 +240,6 @@ vssh() {
 ####################
 # Misc
 ####################
-
-#function ranger() {
-#    if [ -z "$RANGER_LEVEL" ]; then
-#        /usr/local/bin/ranger $@
-#    else
-#        exit
-#    fi
-#}
-
-
 rcd() {
     temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
     ranger --choosedir="$temp_file" -- "${@:-$PWD}"
