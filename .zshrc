@@ -151,6 +151,8 @@ alias t=tmux
 alias vi=nvim
 alias p=pueue
 
+alias gg=lazygit
+
 alias ipy=ipython
 alias jp='jupyter notebook'
 alias ..='cd ..'
