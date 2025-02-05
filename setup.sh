@@ -40,6 +40,7 @@ fi
 ########################################
 echo "Install brew."
 if [ ! "$(command -v brew)" ]; then
+  export NONINTERACTIVE=1
   echo "Homebrew is not installed, Installing homebrew."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   if [ "$(uname)" = "Darwin" ]; then
