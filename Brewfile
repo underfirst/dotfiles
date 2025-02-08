@@ -13,7 +13,6 @@ brew "openssl@1.1"
 brew "gh"
 brew "ghq"
 brew "go"
-brew "kubernetes-cli", link: false
 brew "wget"
 brew "node"
 brew "uv"
@@ -101,6 +100,7 @@ if OS.mac?
   brew "postgresql@14"
   brew "yammerjp/tap/pdef"
   brew "lazydocker"
+  brew "translate-shell"
 
   # app
   cask "jordanbaird-ice"
