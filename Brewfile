@@ -105,8 +105,11 @@ if OS.mac?
   # app
   cask "jordanbaird-ice"
   cask "keycastr"
+  cask "iterm2"
   cask "mark-text"
   cask "cmd-eikana"
+  cask "docker"
+  cask "kindle"
   cask "the-unarchiver"
   cask "rectangle"
   cask "appcleaner"
@@ -119,4 +122,10 @@ if OS.mac?
   cask "todoist"
   cask "1password"
   cask "skitch"
+  cask "slack"
+  cask "zoom"
+  cask "spotify"
+  cask "microsoft-excel"
+  cask "microsoft-word"
+  cask "microsoft-powerpoint"
 end
