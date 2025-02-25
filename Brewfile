@@ -48,6 +48,7 @@ brew "pueue"
 brew "gaze"
 brew "tmux-xpanes"
 brew "tabiew"
+brew "jo"
 
 # misc
 brew "little-cms2"
@@ -101,6 +102,7 @@ if OS.mac?
   brew "yammerjp/tap/pdef"
   brew "lazydocker"
   brew "translate-shell"
+  brew "ddgr"
 
   # app
   cask "jordanbaird-ice"
