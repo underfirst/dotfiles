@@ -154,7 +154,7 @@ alias .....='cd ../../../..'
 alias hx='eval "$(cat ~/.zsh_history | fzf)"'   # fzf history and execute it.
 alias hc='cat ~/.zsh_history | fzf | pbcopy'    # fzf history and copy it
 
-alias fps="ps aux | percol | awk '{print $2}'"
+alias fps="ps aux | fzf | awk '{print $2}'"
 
 alias ghrc="gh repo create"
 alias gpom="git pull origin main"
