@@ -45,6 +45,7 @@ brew "pueue"
 brew "gaze"
 brew "tmux-xpanes"
 brew "tabiew"
+brew "timg"
 
 # misc
 brew "little-cms2"
@@ -99,6 +100,7 @@ if OS.mac?
   brew "translate-shell"
   brew "ddgr"
   brew "mas"
+  brew "kitty"
 
   # app
   cask "jordanbaird-ice"

@@ -4,12 +4,14 @@
 if [ "$(uname)" = 'Darwin' ]; then
   echo "Setup MacOS specific packages."
 
-  # iterm2 settings
-  rm -rdf ~/dotfiles/terminal-app
-  cd ~/dotfiles
-  git clone https://github.com/dracula/terminal-app terminal-app
-  git clone https://github.com/dracula/iterm.git iterm
-  curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
+  # kitty setting
+  THEME=https://raw.githubusercontent.com/dexpota/kitty-themes/master/themes/Dracula.conf
+  wget "$THEME" -P ~/.config/kitty/kitty-themes/themes
+  mkdir -p ~/.config/kitty
+  cd ~/.config/kitty
+  ln -s ./kitty-themes/themes/Dracula.conf ~/.config/kitty/theme.conf
+  # TODO: include ./theme.conf
+
   echo "Finish MacOS specific setup."
 elif [ "$(uname)" = 'Linux' ]; then
   echo "Setup Linux specific packages."
