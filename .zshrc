@@ -275,6 +275,12 @@ fi
 zle -N _sgpt_zsh
 bindkey ^l _sgpt_zsh
 
+# get md
+md () {
+  playwright --pdf "$1" ~/Documents/note/$2;  # TODO: parse $1 to file.
+  cd ~/Documents/note/;
+  docling --image-export-mode placeholder $2;
+}
 ##############################
 # session initialization
 ##############################
