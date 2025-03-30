@@ -143,6 +143,7 @@ alias vi=nvim
 alias p=pueue
 
 alias gg=lazygit
+alias imcat="timg -pk --title -W"
 
 alias ipy=ipython
 alias jp='jupyter notebook'
