@@ -277,9 +277,18 @@ bindkey ^l _sgpt_zsh
 
 # get md
 md () {
-  playwright --pdf "$1" ~/Documents/note/$2;  # TODO: parse $1 to file.
-  cd ~/Documents/note/;
-  docling --image-export-mode placeholder $2;
+  pdf_path=$(python3 ~/dotfiles/utils/md_path.py --path "$1" --name "source.pdf");
+  md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "$1");
+
+  playwright pdf "$1" "${pdf_path}";
+  cd "${md_dir}";
+  docling --image-export-mode placeholder "${pdf_path}";
+}
+
+hmd () {
+  md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "$1");
+  cd "${md_dir}"
+  docling --image-export-mode placeholder "$1";
 }
 ##############################
 # session initialization
