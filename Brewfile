@@ -100,11 +100,10 @@ if OS.mac?
   brew "translate-shell"
   brew "ddgr"
   brew "mas"
-  brew "kitty"
 
   # app
   cask "jordanbaird-ice"
-  cask "iterm2"
+  cask "kitty"
   cask "cmd-eikana"
   cask "docker"
   cask "rectangle"
