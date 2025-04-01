@@ -276,19 +276,55 @@ zle -N _sgpt_zsh
 bindkey ^l _sgpt_zsh
 
 # get md
-md () {
-  pdf_path=$(python3 ~/dotfiles/utils/md_path.py --path "$1" --name "source.pdf");
-  md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "$1");
+function md() {
+  # Parse command-line options
+  while getopts "f:po" opt; do
+    case ${opt} in
+    f)
+      f=${OPTARG}
+      ;;
+    p)
+      p=1
+      ;;
+    o)
+      o=1
+      ;;
+    \?)
+      echo "Usage: md -f <url> [-p] [-o] <argument>"
+      exit 1
+      ;;
+    esac
+  done
+  shift $((OPTIND - 1))
 
-  playwright pdf "$1" "${pdf_path}";
-  cd "${md_dir}";
-  docling --image-export-mode placeholder "${pdf_path}";
-}
+  # Check if required option -f is set
+  if [ -z "$f" ]; then
+    echo "Error: -f <url> is required"
+    return 0
+  fi
+  # Set default values for p and o
+  p=${p:-0}
+  o=${o:-0}
 
-hmd () {
-  md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "$1");
+  md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "${f}")
+  echo "${md_dir}"
   cd "${md_dir}"
-  docling --image-export-mode placeholder "$1";
+  if [ "${p}" = "1" ]; then
+    pdf_path=$(python3 ~/dotfiles/utils/md_path.py --path "${f}" --name "source.pdf")
+    playwright pdf --image-export-mode "${f}" "${pdf_path}"
+    docling --image-export-mode placeholder "${pdf_path}"
+    unset pdf_path
+  else
+    docling --image-export-mode placeholder "${f}"
+  fi
+
+  unset f p md_dir
+  if [ "${o}" = "1" ]; then
+    unset o
+    vi "*.md"
+  else
+    cd -
+  fi
 }
 ##############################
 # session initialization
