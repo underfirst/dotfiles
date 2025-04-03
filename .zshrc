@@ -326,6 +326,33 @@ function md() {
     cd -
   fi
 }
+
+alerm() {
+  local m=0
+
+  while getopts ":m:" opt; do
+    case ${opt} in
+      m )
+        m=$OPTARG
+        ;;
+      \? )
+        echo "Usage: alerm -m <minutes>"
+        return 1
+        ;;
+    esac
+  done
+
+  if [ "$m" -le 0 ]; then
+    echo "Please provide a positive number of minutes using -m."
+    return 1
+  fi
+
+  sleep $((60 * m)) && for i in $(seq 1 5); do
+    say "${m}分たちました"
+    sleep 1
+  done
+}
+
 ##############################
 # session initialization
 ##############################
