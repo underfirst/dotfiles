@@ -278,7 +278,7 @@ bindkey ^l _sgpt_zsh
 # get md
 function md() {
   # Parse command-line options
-  while getopts "f:po" opt; do
+  while getopts "f:pod" opt; do
     case ${opt} in
     f)
       f=${OPTARG}
@@ -289,8 +289,11 @@ function md() {
     o)
       o=1
       ;;
+    d)
+      d=1
+      ;;
     \?)
-      echo "Usage: md -f <url> [-p] [-o] <argument>"
+      echo "Usage: md -f <url> [-p] [-o] [-d] <argument>"
       exit 1
       ;;
     esac
@@ -302,13 +305,17 @@ function md() {
     echo "Error: -f <url> is required"
     return 0
   fi
-  # Set default values for p and o
+  # Set default values for p, o, and d.
   p=${p:-0}
   o=${o:-0}
-
-  md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "${f}")
-  echo "${md_dir}"
-  cd "${md_dir}"
+  d=${d:-0}
+  
+  if [ "${d}" = "1" ]; then
+    md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "${f}")
+    cd "${md_dir}"
+  else
+    md_dir=$(pwd)
+  fi
   if [ "${p}" = "1" ]; then
     pdf_path=$(python3 ~/dotfiles/utils/md_path.py --path "${f}" --name "source.pdf")
     playwright pdf --image-export-mode "${f}" "${pdf_path}"
