@@ -294,6 +294,9 @@ function md() {
       ;;
     \?)
       echo "Usage: md -f <url> [-p] [-o] [-d] <argument>"
+      echo "  -p: download web site as pdf before extract text."
+      echo "  -o: open extracted text."
+      echo "  -d: use notes directory."
       exit 1
       ;;
     esac
@@ -328,9 +331,7 @@ function md() {
   unset f p md_dir
   if [ "${o}" = "1" ]; then
     unset o
-    vi "*.md"
-  else
-    cd -
+    vi
   fi
 }
 
