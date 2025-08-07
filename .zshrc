@@ -30,6 +30,7 @@ setopt print_eight_bit      # 出力時8ビットを通す
 setopt notify              # バックグランドジョブが終了時知らせてくれる
 setopt prompt_subst         # プロンプト定義内で変数置換やコマンド置換を扱う
 setopt print_exit_value     # 戻り値が 0 以外の場合終了コードを表示
+bindkey -v
 
 ####################
 # History related
