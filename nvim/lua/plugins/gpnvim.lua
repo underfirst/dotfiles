@@ -21,7 +21,12 @@ return {
       -- Setup shortcuts here (see Usage > Shortcuts in the Documentation/Readme)
     end,
     keys = {
-      { "<C-g>t", "<cmd>GpChatToggle split<cr>", mode = { "i", "n" }, desc = "Toggle Chat" },
+      {
+        "<C-g>t",
+        "<cmd>GpChatToggle split<CR><CMD>horizontal resize 20<CR>",
+        mode = { "i", "n" },
+        desc = "Toggle Chat",
+      },
       { "<C-g>c", "<CMD>GpChatNew<CR>", mode = { "i", "n" }, desc = "New Chat" },
       { "<C-g>f", "<CMD>GpChatFinder<CR>", mode = { "i", "n" }, desc = "Chat Finder" },
       { "<C-g>r", "<CMD>GpRewrite<cr>", mode = { "i", "n" }, desc = "Inline Rewrite" },
