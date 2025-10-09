@@ -9,5 +9,31 @@ vim.keymap.set("n", "<leader>rc", ":RunClose<CR>", { noremap = true, silent = fa
 vim.keymap.set("n", "<leader>crf", ":CRFiletype<CR>", { noremap = true, silent = false })
 vim.keymap.set("n", "<leader>crp", ":CRProjects<CR>", { noremap = true, silent = false })
 
+-- 関数の読み込み
+local markdown = require("config.functions.markdown")
+
+-- キーマップ設定
+-- Markdown関連キーマップ
+vim.keymap.set(
+  "n",
+  "<leader>my",
+  markdown.yank_code_block,
+  { noremap = true, silent = true, desc = "Yank markdown code block" }
+)
+
+vim.keymap.set(
+  "n",
+  "<leader>mj",
+  markdown.jump_next_code_block,
+  { noremap = true, silent = true, desc = "Jump to next markdown code block" }
+)
+
+vim.keymap.set(
+  "n",
+  "<leader>mk",
+  markdown.jump_prev_code_block,
+  { noremap = true, silent = true, desc = "Jump to previous markdown code block" }
+)
+
 vim.api.nvim_set_keymap("n", "j", "<Plug>(accelerated_jk_gj)", {})
 vim.api.nvim_set_keymap("n", "k", "<Plug>(accelerated_jk_gk)", {})
