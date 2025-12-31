@@ -91,7 +91,7 @@ autoload -U compinit
 compinit -C
 compinit
 source <(cod init $$ zsh);
-
+eval "$(zoxide init zsh --cmd cd)"
 
 ##############################
 # zinit setup
@@ -132,12 +132,12 @@ zinit light gko/ssh-connect
 # Alias definitions
 ##############################
 alias c=clear
-alias d='du -h -d1'
 alias f='find . -name'
 alias k=kill
 alias l='ls -alh'
 alias m='mkdir -p'
 alias py='python'
+alias o="open"
 alias q=exit
 alias t=tmux
 alias vi=nvim
@@ -164,6 +164,16 @@ alias gpom="git pull origin main"
 alias proot='cd $(git rev-parse --show-toplevel)'
 alias cghq='cd $(ghq root)';
 
+alias ei="eza --icons --git"
+alias ea="eza -la --icons --git"
+alias ee="eza -aahl --icons --git"
+alias et="eza -T -L 3 -a -I 'node_modules|.git|.cache' --icons"
+alias ls=ei
+alias la=ea
+alias ll=ee
+alias cat=bat
+
+alias bk="~/dotfiles/utils/bk.py"
 
 ##############################
 # Function definitions
@@ -245,8 +255,13 @@ rcd() {
 }
 
 
-wo() {
-  log_file="${HOME}/Documents/page.log"
+g() {
+  if [ $# -eq 0 ]; then
+    echo "usage: g 文字列1 文字列2 ..."
+    return 1
+  fi
+
+  log_file="${HOME}/Documents/web_search.log"
   local url="$1"
   local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
 
@@ -256,12 +271,19 @@ wo() {
     echo "$timestamp $url" >> "$log_file"
   else
     # httpから始まらない場合、url encodeしてGoogle検索を行う
-    encoded_url=$(echo "$url" | jq -sRr @uri)
-    search_url="https://www.google.com/search?q=$encoded_url"
-    open "$search_url"
-    echo "$timestamp $url" >> "$log_file"
+    local query
+    query=$(python3 - <<'EOF' "$@"
+import sys, urllib.parse
+print("+".join(urllib.parse.quote(s) for s in sys.argv[1:]))
+EOF
+)
+
+  local url="https://duckduckgo.com/?q=${query}"
+  open "$url"
+  echo "$timestamp $url" >> "$log_file"
   fi
 }
+
 
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {

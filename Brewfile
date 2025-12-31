@@ -46,6 +46,10 @@ brew "gaze"
 brew "tmux-xpanes"
 brew "tabiew"
 brew "timg"
+brew "eza"
+brew "bat"
+brew "zoxide"
+
 
 # misc
 brew "little-cms2"

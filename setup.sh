@@ -69,6 +69,7 @@ source ~/.zshrc
 
 # TODO: node:
 npm install -g commitzen cz-git
+pipx install sqlit-tui
 
 # Install cod
 cd ~
