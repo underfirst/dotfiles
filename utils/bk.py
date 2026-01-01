@@ -2,7 +2,13 @@
 #
 # /// script
 # requires-python = ">=3.12"
-# dependencies = ["typer"]
+# dependencies = [
+#   "typer",
+#   "langchain",
+#   "langchain-ollama",
+#   "pyyaml",
+#   "websocket-client"
+# ]
 # ///
 
 from __future__ import annotations
@@ -10,15 +16,23 @@ from __future__ import annotations
 import json
 import sqlite3
 import subprocess
+import tempfile
 from pathlib import Path
-from typing import List, Tuple
 
+import requests
 import typer
+from langchain_ollama import ChatOllama
+from websocket import create_connection
 
 app = typer.Typer()
+context_app = typer.Typer()
+app.add_typer(context_app, name="context")
+
 
 CONFIG_PATH = Path.home() / ".config/bk/config.json"
-
+PROMPT_DIR = Path.home() / ".config/bk/prompts"
+ERROR_LOG = Path.home() / ".local/state/bk/context_errors.log"
+ERROR_LOG.parent.mkdir(parents=True, exist_ok=True)
 
 # -------------------------
 # Config
@@ -32,6 +46,12 @@ def load_config() -> dict:
     return json.loads(CONFIG_PATH.read_text())
 
 
+def load_prompt(name: str) -> str:
+    path = PROMPT_DIR / name
+    data = yaml.safe_load(path.read_text())
+    return data["prompt"]
+
+
 # -------------------------
 # Chrome via AppleScript
 # -------------------------
@@ -41,7 +61,7 @@ def _run_applescript(script: str) -> str:
     return subprocess.check_output(["osascript", "-e", script], text=True).strip()
 
 
-def get_active_tab() -> Tuple[str, str]:
+def get_active_tab() -> tuple[str, str]:
     script = """
     tell application "Google Chrome"
         set t to active tab of front window
@@ -52,7 +72,7 @@ def get_active_tab() -> Tuple[str, str]:
     return title, url
 
 
-def get_all_tabs() -> List[Tuple[str, str]]:
+def get_all_tabs() -> list[tuple[str, str]]:
     script = """
     tell application "Google Chrome"
         set output to ""
@@ -67,6 +87,42 @@ def get_all_tabs() -> List[Tuple[str, str]]:
     raw = _run_applescript(script)
     lines = raw.splitlines()
     return list(zip(lines[0::2], lines[1::2]))
+
+
+# -------------------------
+# Chrome CDP (rendered HTML)
+# -------------------------
+
+
+def get_rendered_html(url: str, port: int) -> Path | None:
+    try:
+        tabs = requests.get(f"http://localhost:{port}/json").json()
+        tab = next(t for t in tabs if t.get("type") == "page" and t.get("url") == url)
+
+        ws = create_connection(tab["webSocketDebuggerUrl"])
+
+        ws.send(json.dumps({"id": 1, "method": "DOM.getDocument"}))
+        doc = json.loads(ws.recv())["result"]["root"]["nodeId"]
+
+        ws.send(
+            json.dumps(
+                {
+                    "id": 2,
+                    "method": "DOM.getOuterHTML",
+                    "params": {"nodeId": doc},
+                }
+            )
+        )
+        html = json.loads(ws.recv())["result"]["outerHTML"]
+        ws.close()
+
+        fd, path = tempfile.mkstemp(suffix=".html")
+        Path(path).write_text(html)
+        return Path(path)
+
+    except Exception as e:
+        typer.echo(f"[rendered] fallback to url: {e}")
+        return None
 
 
 # -------------------------
@@ -112,8 +168,13 @@ def init_db(db_path: Path) -> sqlite3.Connection:
         CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             url TEXT UNIQUE,
-            title TEXT,
-            markdown TEXT,
+            title TEXT DEFAULT '',
+            markdown TEXT DEFAULT '',
+            cleaned_markdown TEXT DEFAULT '',
+            context TEXT DEFAULT '',
+            summary TEXT DEFAULT '',
+            processing_stage TEXT DEFAULT 'pending',
+            needs_retry INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP
         );
@@ -141,44 +202,137 @@ def ensure_pueue_group():
     )
 
 
-def enqueue_docling(url: str, title: str, db_path: Path, force: bool = False):
+def enqueue_docling(
+    source: str,
+    title: str,
+    db_path: Path,
+    force: bool,
+):
     ensure_pueue_group()
+
     cmd = f"""
 set -e
 TMPDIR=$(mktemp -d)
-docling '{url}' --table-mode accurate --output "$TMPDIR"
-ls -l "$TMPDIR"
+
+docling "{source}" --to md --image-export-mode placeholder --ocr-engine ocrmac  --table-mode accurate --output "$TMPDIR"
 
 MD=$(ls "$TMPDIR"/*.md | head -n 1)
 
 python3 - <<EOF
 import sqlite3, pathlib
-
 db = pathlib.Path("{db_path}")
 md = pathlib.Path("$MD").read_text()
 
 conn = sqlite3.connect(db)
-conn.execute(
-    '''
-    INSERT INTO documents (url, title, markdown)
-    VALUES (?, ?, ?)
-    ON CONFLICT(url) DO UPDATE SET
-        title=excluded.title,
-        markdown=excluded.markdown,
-        updated_at=CURRENT_TIMESTAMP
-    '''
-    if {str(force)} else
-    '''
-    INSERT OR IGNORE INTO documents (url, title, markdown)
-    VALUES (?, ?, ?)
-    ''',
-    ("{url}", "{title}", md)
-)
+
+if {str(force)}:
+    cur = conn.execute(
+        "UPDATE documents SET title=?, markdown=?, updated_at=CURRENT_TIMESTAMP WHERE url=?",
+        ("{title}", md, "{source}")
+    )
+    if cur.rowcount == 0:
+        conn.execute(
+            "INSERT INTO documents (url, title, markdown) VALUES (?, ?, ?)",
+            ("{source}", "{title}", md)
+        )
+else:
+    conn.execute(
+        "INSERT OR IGNORE INTO documents (url, title, markdown) VALUES (?, ?, ?)",
+        ("{source}", "{title}", md)
+    )
+
 conn.commit()
 EOF
 """
-
     subprocess.run(["pueue", "add", "--group", "dk", cmd], check=False)
+
+
+# -------------------------
+# Context generation logic
+# -------------------------
+
+
+def truncate(text: str, max_chars: int) -> str:
+    return text[:max_chars]
+
+
+def build_llm(cfg: dict) -> ChatOllama:
+    llm_cfg = cfg.get("llm", None)
+    if llm_cfg is None:
+        typer.echo("LLM configuration not found.", err=True)
+        raise typer.Exit(1)
+    return ChatOllama(
+        base_url=llm_cfg["base_url"],
+        api_key=llm_cfg["api_key"],
+        model=llm_cfg["model"],
+        temperature=llm_cfg["temperature"],
+    )
+
+
+def run_context_job(db_path: Path):
+    cfg = load_config()
+    llm = build_llm(cfg)
+
+    clean_prompt = load_prompt("clean_v1.yaml")
+    context_prompt = load_prompt("context_v1.yaml")
+    summary_prompt = load_prompt("summary_v1.yaml")
+
+    max_chars = cfg["llm"]["max_input_chars"]
+
+    conn = sqlite3.connect(db_path)
+    rows = conn.execute(
+        """
+        SELECT id, markdown
+        FROM documents
+        WHERE processing_stage = 'pending'
+           OR (processing_stage = 'error' AND needs_retry = 1)
+        """
+    ).fetchall()
+
+    for doc_id, raw_md in rows:
+        try:
+            conn.execute(
+                "UPDATE documents SET processing_stage='processing' WHERE id=?",
+                (doc_id,),
+            )
+
+            raw_md = truncate(raw_md, max_chars)
+
+            cleaned = llm.invoke(clean_prompt.replace("{{text}}", raw_md)).content
+
+            context = llm.invoke(context_prompt.replace("{{text}}", cleaned)).content
+
+            summary = llm.invoke(summary_prompt.replace("{{text}}", context)).content
+
+            conn.execute(
+                """
+                UPDATE documents
+                SET cleaned_markdown=?,
+                    context=?,
+                    summary=?,
+                    processing_stage='done',
+                    needs_retry=0,
+                    updated_at=CURRENT_TIMESTAMP
+                WHERE id=?
+                """,
+                (cleaned, context, summary, doc_id),
+            )
+            conn.commit()
+
+        except Exception as e:
+            conn.execute(
+                """
+                UPDATE documents
+                SET processing_stage='error',
+                    needs_retry=0,
+                    updated_at=CURRENT_TIMESTAMP
+                WHERE id=?
+                """,
+                (doc_id,),
+            )
+            conn.commit()
+
+            ERROR_LOG.write_text(f"[doc_id={doc_id}] {e}\n", append=True)
 
 
 # -------------------------
@@ -189,6 +343,7 @@ EOF
 @app.command()
 def tab():
     cfg = load_config()
+    # TODO: md_dir.get() でのassert. 正しくはd系の時のpre-reqのconfirm.
     md_dir = Path(cfg["markdown_dir"])
 
     title, url = get_active_tab()
@@ -206,6 +361,7 @@ def tab():
 @app.command()
 def all():
     cfg = load_config()
+    # TODO: md_dir.get() でのassert
     md_dir = Path(cfg["markdown_dir"])
 
     tabs = get_all_tabs()
@@ -220,9 +376,11 @@ def all():
 
 
 @app.command()
-def dtab(force: bool = False):
+def dtab(force: bool = False, rendered: bool = False):
     cfg = load_config()
+    # TODO: sqlite_path.get() でのassert (正しくはd系の時のpre-reqのconfirm.)
     db_path = Path(cfg["sqlite_path"])
+    port = cfg.get("chrome_debug_port", 9222)
 
     conn = init_db(db_path)
     title, url = get_active_tab()
@@ -231,14 +389,23 @@ def dtab(force: bool = False):
         typer.echo("URL already exists. Use --force to overwrite.")
         return
 
+    if rendered:
+        html = get_rendered_html(url, port)
+        if html:
+            enqueue_docling(str(html), title, db_path, force, is_html=True)
+            typer.echo(f"[rendered] enqueue {title}")
+            return
+
     enqueue_docling(url, title, db_path, force)
     typer.echo(f"enqueue docling {title}.")
 
 
 @app.command()
-def dall(force: bool = False):
+def dall(force: bool = False, rendered: bool = False):
     cfg = load_config()
+    # TODO: sqlite_path.get() でのassert
     db_path = Path(cfg["sqlite_path"])
+    port = cfg.get("chrome_debug_port", 9222)
 
     conn = init_db(db_path)
     tabs = get_all_tabs()
@@ -246,8 +413,41 @@ def dall(force: bool = False):
     for title, url in tabs:
         if url_exists(conn, url) and not force:
             continue
+
+        if rendered:
+            html = get_rendered_html(url, port)
+            if html:
+                enqueue_docling(str(html), title, db_path, force, is_html=True)
+                typer.echo(f"[rendered] enqueue {url}")
+                continue
+
         enqueue_docling(url, title, db_path, force)
         typer.echo(f"enqueue docling {url}.")
+
+
+@context_app.command()
+def generate(retry: bool = False):
+    cfg = load_config()
+    db_path = Path(cfg["sqlite_path"])
+
+    if retry:
+        subprocess.run(
+            [
+                "sqlite3",
+                str(db_path),
+                "UPDATE documents SET needs_retry=1 WHERE processing_stage='error';",
+            ]
+        )
+    run_context_job(db_path)
+
+
+@context_app.command()
+def skim():
+    cfg = load_config()
+    # AI! bk context skimで, 現在表示しているwebサイトの概要を表示する機能を実装してください.
+    # 実装方針として, 現在表示しているwebサイトのmarkdown情報をdoclingで取得し, 取得結果をskim_v1 promptで要約して表示してください.
+    # 実行はpueueを使わず, webサイトのmarkdownや出力した概要文などもDBに保存する必要はありません.
+    db_path = Path(cfg["sqlite_path"])
 
 
 if __name__ == "__main__":
