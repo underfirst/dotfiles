@@ -1155,3 +1155,4 @@ cython_debug/
 # User specific ignore
 /cod/
 /terminal-app/
+.aider*

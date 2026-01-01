@@ -298,66 +298,6 @@ fi
 zle -N _sgpt_zsh
 bindkey ^l _sgpt_zsh
 
-# get md
-function md() {
-  # Parse command-line options
-  while getopts "f:pod" opt; do
-    case ${opt} in
-    f)
-      f=${OPTARG}
-      ;;
-    p)
-      p=1
-      ;;
-    o)
-      o=1
-      ;;
-    d)
-      d=1
-      ;;
-    \?)
-      echo "Usage: md -f <url> [-p] [-o] [-d] <argument>"
-      echo "  -p: download web site as pdf before extract text."
-      echo "  -o: open extracted text."
-      echo "  -d: use notes directory."
-      exit 1
-      ;;
-    esac
-  done
-  shift $((OPTIND - 1))
-
-  # Check if required option -f is set
-  if [ -z "$f" ]; then
-    echo "Error: -f <url> is required"
-    return 0
-  fi
-  # Set default values for p, o, and d.
-  p=${p:-0}
-  o=${o:-0}
-  d=${d:-0}
-  
-  if [ "${d}" = "1" ]; then
-    md_dir=$(python3 ~/dotfiles/utils/md_path.py --path "${f}")
-    cd "${md_dir}"
-  else
-    md_dir=$(pwd)
-  fi
-  if [ "${p}" = "1" ]; then
-    pdf_path=$(python3 ~/dotfiles/utils/md_path.py --path "${f}" --name "source.pdf")
-    playwright pdf --image-export-mode "${f}" "${pdf_path}"
-    docling --image-export-mode placeholder "${pdf_path}"
-    unset pdf_path
-  else
-    docling --image-export-mode placeholder "${f}"
-  fi
-
-  unset f p md_dir
-  if [ "${o}" = "1" ]; then
-    unset o
-    vi
-  fi
-}
-
 alerm() {
   local m=0
 

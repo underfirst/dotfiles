@@ -15,10 +15,10 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sqlite3
 import subprocess
 import tempfile
-import shutil
 from pathlib import Path
 
 import requests
@@ -337,13 +337,14 @@ def run_context_job(db_path: Path):
                 (doc_id,),
             )
             conn.commit()
-
-            ERROR_LOG.write_text(f"[doc_id={doc_id}] {e}\n", append=True)
+            with open(ERROR_LOG, "a") as f:
+                f.write(f"[doc_id={doc_id}] {e}\n")
 
 
 # -------------------------
 # Validation helpers
 # -------------------------
+
 
 def validate_tab_all(cfg: dict):
     md_dir = cfg.get("markdown_dir")
@@ -354,10 +355,13 @@ def validate_tab_all(cfg: dict):
         typer.echo("fzfコマンドが見つかりません", err=True)
         raise typer.Exit(1)
 
+
 def validate_dtab_dall(cfg: dict):
     db_path = cfg.get("sqlite_path")
     if not db_path or not Path(db_path).parent.exists():
-        typer.echo("sqlite_pathが設定されていないかディレクトリが存在しません", err=True)
+        typer.echo(
+            "sqlite_pathが設定されていないかディレクトリが存在しません", err=True
+        )
         raise typer.Exit(1)
     if shutil.which("docling") is None:
         typer.echo("doclingコマンドが見つかりません", err=True)
@@ -369,10 +373,13 @@ def validate_dtab_dall(cfg: dict):
         typer.echo("chrome_debug_portが設定されていません", err=True)
         raise typer.Exit(1)
 
+
 def validate_context(cfg: dict, require_docling: bool = False):
     db_path = cfg.get("sqlite_path")
     if not db_path or not Path(db_path).parent.exists():
-        typer.echo("sqlite_pathが設定されていないかディレクトリが存在しません", err=True)
+        typer.echo(
+            "sqlite_pathが設定されていないかディレクトリが存在しません", err=True
+        )
         raise typer.Exit(1)
     llm = cfg.get("llm", {})
     required_keys = ["base_url", "api_key", "model", "temperature", "max_input_chars"]
@@ -383,6 +390,7 @@ def validate_context(cfg: dict, require_docling: bool = False):
     if require_docling and shutil.which("docling") is None:
         typer.echo("doclingコマンドが見つかりません", err=True)
         raise typer.Exit(1)
+
 
 # -------------------------
 # Commands
