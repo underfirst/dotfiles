@@ -444,10 +444,44 @@ def generate(retry: bool = False):
 @context_app.command()
 def skim():
     cfg = load_config()
-    # AI! bk context skimで, 現在表示しているwebサイトの概要を表示する機能を実装してください.
-    # 実装方針として, 現在表示しているwebサイトのmarkdown情報をdoclingで取得し, 取得結果をskim_v1 promptで要約して表示してください.
-    # 実行はpueueを使わず, webサイトのmarkdownや出力した概要文などもDBに保存する必要はありません.
-    db_path = Path(cfg["sqlite_path"])
+    # 現在アクティブなタブのタイトルとURLを取得
+    title, url = get_active_tab()
+    title = title or url
+
+    # 一時ディレクトリでdoclingを実行し、Markdownを取得
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        # doclingでMarkdown化
+        subprocess.run(
+            [
+                "docling",
+                url,
+                "--to", "md",
+                "--image-export-mode", "placeholder",
+                "--ocr-engine", "ocrmac",
+                "--table-mode", "accurate",
+                "--output", str(tmpdir_path)
+            ],
+            check=True
+        )
+        # 生成されたMarkdownファイルを取得
+        md_files = list(tmpdir_path.glob("*.md"))
+        if not md_files:
+            typer.echo("Markdownファイルが生成されませんでした。", err=True)
+            raise typer.Exit(1)
+        md_text = md_files[0].read_text()
+
+    # skim_v1プロンプトをロード
+    import yaml
+    prompt = load_prompt("skim_v1.yaml")
+    prompt_text = prompt.replace("{{text}}", md_text)
+
+    # LLMで要約
+    llm = build_llm(cfg)
+    summary = llm.invoke(prompt_text).content
+
+    # 結果を表示
+    typer.echo(f"【{title}】\n{summary}")
 
 
 if __name__ == "__main__":
