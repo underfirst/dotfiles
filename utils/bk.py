@@ -7,7 +7,8 @@
 #   "langchain",
 #   "langchain-ollama",
 #   "pyyaml",
-#   "websocket-client"
+#   "websocket-client",
+#   "rich"
 # ]
 # ///
 
@@ -21,7 +22,11 @@ from pathlib import Path
 
 import requests
 import typer
+import yaml
 from langchain_ollama import ChatOllama
+from rich.console import Console
+from rich.live import Live
+from rich.markdown import Markdown
 from websocket import create_connection
 
 app = typer.Typer()
@@ -442,46 +447,82 @@ def generate(retry: bool = False):
 
 
 @context_app.command()
-def skim():
+def skim(no_live: bool = False):
     cfg = load_config()
-    # 現在アクティブなタブのタイトルとURLを取得
+
+    # 現在アクティブなタブ
     title, url = get_active_tab()
     title = title or url
 
-    # 一時ディレクトリでdoclingを実行し、Markdownを取得
+    console = Console()
+    console.print(f"[bold]Processing:[/bold] {title}")
+    console.print(url)
+
+    # -------------------------
+    # docling
+    # -------------------------
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
-        # doclingでMarkdown化
+
+        console.print("Running docling...")
         subprocess.run(
             [
                 "docling",
                 url,
-                "--to", "md",
-                "--image-export-mode", "placeholder",
-                "--ocr-engine", "ocrmac",
-                "--table-mode", "accurate",
-                "--output", str(tmpdir_path)
+                "--to",
+                "md",
+                "--image-export-mode",
+                "placeholder",
+                "--ocr-engine",
+                "ocrmac",
+                "--table-mode",
+                "accurate",
+                "--output",
+                str(tmpdir_path),
             ],
-            check=True
+            check=True,
         )
-        # 生成されたMarkdownファイルを取得
+
         md_files = list(tmpdir_path.glob("*.md"))
         if not md_files:
             typer.echo("Markdownファイルが生成されませんでした。", err=True)
             raise typer.Exit(1)
+
         md_text = md_files[0].read_text()
 
-    # skim_v1プロンプトをロード
-    import yaml
+    # -------------------------
+    # Prompt
+    # -------------------------
     prompt = load_prompt("skim_v1.yaml")
     prompt_text = prompt.replace("{{text}}", md_text)
 
-    # LLMで要約
     llm = build_llm(cfg)
-    summary = llm.invoke(prompt_text).content
 
-    # 結果を表示
-    typer.echo(f"【{title}】\n{summary}")
+    # -------------------------
+    # 非 Live モード（後方互換）
+    # -------------------------
+    if no_live:
+        console.print("Generating summary...")
+        summary = llm.invoke(prompt_text).content
+        console.print(Markdown(summary))
+        return
+
+    # -------------------------
+    # Live Streaming モード
+    # -------------------------
+    buffer = "# Skim Summary\n\n_Generating..._\n\n"
+
+    md = Markdown(buffer)
+
+    with Live(md, console=console, refresh_per_second=6) as live:
+        for chunk in llm.stream(prompt_text):
+            if not chunk or not chunk.content:
+                continue
+
+            buffer += chunk.content
+
+            # Markdown を再生成して更新
+            live.update(Markdown(buffer))
 
 
 if __name__ == "__main__":
