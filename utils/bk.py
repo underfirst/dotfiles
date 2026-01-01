@@ -18,6 +18,7 @@ import json
 import sqlite3
 import subprocess
 import tempfile
+import shutil
 from pathlib import Path
 
 import requests
@@ -341,6 +342,49 @@ def run_context_job(db_path: Path):
 
 
 # -------------------------
+# Validation helpers
+# -------------------------
+
+def validate_tab_all(cfg: dict):
+    md_dir = cfg.get("markdown_dir")
+    if not md_dir or not Path(md_dir).exists():
+        typer.echo("markdown_dirが設定されていないか存在しません", err=True)
+        raise typer.Exit(1)
+    if shutil.which("fzf") is None:
+        typer.echo("fzfコマンドが見つかりません", err=True)
+        raise typer.Exit(1)
+
+def validate_dtab_dall(cfg: dict):
+    db_path = cfg.get("sqlite_path")
+    if not db_path or not Path(db_path).parent.exists():
+        typer.echo("sqlite_pathが設定されていないかディレクトリが存在しません", err=True)
+        raise typer.Exit(1)
+    if shutil.which("docling") is None:
+        typer.echo("doclingコマンドが見つかりません", err=True)
+        raise typer.Exit(1)
+    if shutil.which("pueue") is None:
+        typer.echo("pueueコマンドが見つかりません", err=True)
+        raise typer.Exit(1)
+    if "chrome_debug_port" not in cfg:
+        typer.echo("chrome_debug_portが設定されていません", err=True)
+        raise typer.Exit(1)
+
+def validate_context(cfg: dict, require_docling: bool = False):
+    db_path = cfg.get("sqlite_path")
+    if not db_path or not Path(db_path).parent.exists():
+        typer.echo("sqlite_pathが設定されていないかディレクトリが存在しません", err=True)
+        raise typer.Exit(1)
+    llm = cfg.get("llm", {})
+    required_keys = ["base_url", "api_key", "model", "temperature", "max_input_chars"]
+    for k in required_keys:
+        if k not in llm:
+            typer.echo(f"llm.{k} が設定されていません", err=True)
+            raise typer.Exit(1)
+    if require_docling and shutil.which("docling") is None:
+        typer.echo("doclingコマンドが見つかりません", err=True)
+        raise typer.Exit(1)
+
+# -------------------------
 # Commands
 # -------------------------
 
@@ -348,7 +392,7 @@ def run_context_job(db_path: Path):
 @app.command()
 def tab():
     cfg = load_config()
-    # TODO: md_dir.get() でのassert. 正しくはd系の時のpre-reqのconfirm.
+    validate_tab_all(cfg)
     md_dir = Path(cfg["markdown_dir"])
 
     title, url = get_active_tab()
@@ -366,7 +410,7 @@ def tab():
 @app.command()
 def all():
     cfg = load_config()
-    # TODO: md_dir.get() でのassert
+    validate_tab_all(cfg)
     md_dir = Path(cfg["markdown_dir"])
 
     tabs = get_all_tabs()
@@ -383,7 +427,7 @@ def all():
 @app.command()
 def dtab(force: bool = False, rendered: bool = False):
     cfg = load_config()
-    # TODO: sqlite_path.get() でのassert (正しくはd系の時のpre-reqのconfirm.)
+    validate_dtab_dall(cfg)
     db_path = Path(cfg["sqlite_path"])
     port = cfg.get("chrome_debug_port", 9222)
 
@@ -408,7 +452,7 @@ def dtab(force: bool = False, rendered: bool = False):
 @app.command()
 def dall(force: bool = False, rendered: bool = False):
     cfg = load_config()
-    # TODO: sqlite_path.get() でのassert
+    validate_dtab_dall(cfg)
     db_path = Path(cfg["sqlite_path"])
     port = cfg.get("chrome_debug_port", 9222)
 
@@ -433,6 +477,7 @@ def dall(force: bool = False, rendered: bool = False):
 @context_app.command()
 def generate(retry: bool = False):
     cfg = load_config()
+    validate_context(cfg)
     db_path = Path(cfg["sqlite_path"])
 
     if retry:
@@ -449,6 +494,7 @@ def generate(retry: bool = False):
 @context_app.command()
 def skim(no_live: bool = False):
     cfg = load_config()
+    validate_context(cfg, require_docling=True)
 
     # 現在アクティブなタブ
     title, url = get_active_tab()
