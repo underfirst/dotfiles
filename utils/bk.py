@@ -217,12 +217,21 @@ def enqueue_docling(
 ):
     ensure_pueue_group()
 
-    # AI! is_htmlがtrueの時, sourceは生のhtmlのテキストです. そこで, is_htmlがtrueの時は, tempfileに保存してから保存したパスをdoclingに渡すように修正してください
+    # is_htmlがtrueの時、sourceは生のhtmlテキストなので、一時ファイルに保存してそのパスをdoclingに渡す
+    if is_html:
+        import tempfile
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode="w", encoding="utf-8") as tf:
+            tf.write(source)
+            html_path = tf.name
+        docling_input = html_path
+    else:
+        docling_input = source
+
     cmd = f"""
 set -e
 TMPDIR=$(mktemp -d)
 
-docling "{source}" --to md --image-export-mode placeholder --ocr-engine ocrmac  --table-mode accurate --output "$TMPDIR"
+docling "{docling_input}" --to md --image-export-mode placeholder --ocr-engine ocrmac  --table-mode accurate --output "$TMPDIR"
 
 MD=$(ls "$TMPDIR"/*.md | head -n 1)
 
