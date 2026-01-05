@@ -500,7 +500,7 @@ def generate(retry: bool = False):
 
 
 @context_app.command()
-def skim(no_live: bool = False):
+def skim(no_live: bool = False, translate: bool = False):
     cfg = load_config()
     validate_context(cfg, require_docling=True)
 
@@ -548,6 +548,8 @@ def skim(no_live: bool = False):
     # Prompt
     # -------------------------
     prompt = load_prompt("skim_v1.yaml")
+    if translate:
+        prompt = load_prompt("translate_v1.yaml")
     prompt_text = prompt.replace("{{text}}", md_text)
 
     llm = build_llm(cfg)

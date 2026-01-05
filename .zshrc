@@ -285,6 +285,21 @@ EOF
 }
 
 
+a () {
+  local query="$*"
+  local app
+
+  app=$(
+    find /Applications -maxdepth 1 -type d -name "*.app" \
+      -exec basename {} .app \; \
+    | sort \
+    | fzf --prompt="Applications> " --query="$query"
+  )
+
+  [[ -n "$app" ]] && open "/Applications/${app}.app"
+}
+
+
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
 if [[ -n "$BUFFER" ]]; then
