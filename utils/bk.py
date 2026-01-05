@@ -305,7 +305,7 @@ def build_llm(cfg: dict, model: str = "local") -> BaseLanguageModel:
             model=llm_cfg["model"],
             temperature=llm_cfg["temperature"],
         )
-    elif model == "gpt-":
+    elif model.find("gpt-") != -1:
         if model.find("gpt-5") != -1:
             llm = ChatOpenAI(model=model, reasoning_effort="low")
         else:
