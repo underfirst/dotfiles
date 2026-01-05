@@ -720,34 +720,24 @@ def translate(output: Path | None = None, stream: bool = False, debug: bool = Fa
     console = Console()
     console.print(f"[bold]Translating:[/bold] {title}")
     console.print(url)
-    # AI! urlのコンテンツpdfかそれ以外かoptionを分ける.
-    # requests.get(url)でContent-Typeを確認してpdfならpdf用のoptionを使うようにする.
-    """
-    default_option = [
-                "docling",
-                url,
-                "--to",
-                "md",
-                "--image-export-mode",
-                "placeholder",
-                "--table-mode",
-                "accurate",
-                "--output",
-                str(tmpdir_path),
-            ],
-    
-    pdfは現在の通り.
-    """
 
-    # -------------------------
-    # docling (URL直接)
-    # -------------------------
+    # urlのコンテンツがpdfかどうかでdoclingのオプションを分岐
+    is_pdf = False
+    try:
+        resp = requests.head(url, allow_redirects=True, timeout=10)
+        content_type = resp.headers.get("Content-Type", "")
+        if "pdf" in content_type.lower():
+            is_pdf = True
+    except Exception as e:
+        typer.echo(f"Content-Typeの取得に失敗: {e}", err=True)
+
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
 
         console.print("Running docling...")
-        subprocess.run(
-            [
+
+        if is_pdf:
+            docling_cmd = [
                 "docling",
                 url,
                 "--to",
@@ -761,7 +751,23 @@ def translate(output: Path | None = None, stream: bool = False, debug: bool = Fa
                 "--enrich-fomula",
                 "--output",
                 str(tmpdir_path),
-            ],
+            ]
+        else:
+            docling_cmd = [
+                "docling",
+                url,
+                "--to",
+                "md",
+                "--image-export-mode",
+                "placeholder",
+                "--table-mode",
+                "accurate",
+                "--output",
+                str(tmpdir_path),
+            ]
+
+        subprocess.run(
+            docling_cmd,
             check=True,
         )
 
