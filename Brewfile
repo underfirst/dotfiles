@@ -49,7 +49,8 @@ brew "timg"
 brew "eza"
 brew "bat"
 brew "zoxide"
-
+brew "poppler"
+brew "fd"
 
 # misc
 brew "little-cms2"

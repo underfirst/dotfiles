@@ -10,12 +10,6 @@
 roles/**
 !roles/requirements.yml
 
-# Avoid plain-text passwords
-*pwd*
-*pass*
-*password*
-*.txt
-
 # Exclude all binaries
 *.bin
 *.jar
