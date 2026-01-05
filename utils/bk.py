@@ -306,7 +306,10 @@ def build_llm(cfg: dict, model: str = "local") -> BaseLanguageModel:
             temperature=llm_cfg["temperature"],
         )
     elif model == "gpt-":
-        llm = ChatOpenAI(model=model, reasoning_effort="low")
+        if model.find("gpt-5") !+ -1:
+            llm = ChatOpenAI(model=model, reasoning_effort="low")
+        else:
+            llm = ChatOpenAI(model=model)
     else:
         raise ValueError(f"Unsupported model: {model}")
     return llm
@@ -428,9 +431,13 @@ def split_markdown_sections(md: str) -> list[Section]:
 
 
 def translate_markdown_sections(
-    md_text: str, cfg: dict, stream: bool = False, debug: bool = False
+    md_text: str,
+    cfg: dict,
+    stream: bool = False,
+    debug: bool = False,
+    model: str = "gpt-5-nano",
 ) -> str:
-    llm = build_llm(cfg, "gpt-5-nano")
+    llm = build_llm(cfg, model)
 
     section_prompt = load_prompt("translate_section_v1.yaml")
 
@@ -736,7 +743,12 @@ def skim(no_live: bool = False, translate: bool = False):
 
 
 @context_app.command()
-def translate(output: Path | None = None, stream: bool = False, debug: bool = False):
+def translate(
+    output: Path | None = None,
+    stream: bool = False,
+    debug: bool = False,
+    model: str = "gpt-5-nano",
+):
     cfg = load_config()
     validate_context(cfg, require_docling=True)
 
@@ -791,7 +803,9 @@ def translate(output: Path | None = None, stream: bool = False, debug: bool = Fa
     # -------------------------
     # 翻訳
     # -------------------------
-    translated = translate_markdown_sections(md_text, cfg, stream=stream, debug=debug)
+    translated = translate_markdown_sections(
+        md_text, cfg, stream=stream, debug=debug, model=model
+    )
 
     console.print(Markdown(translated))
 
