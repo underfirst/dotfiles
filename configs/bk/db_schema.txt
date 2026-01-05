@@ -1,0 +1,13 @@
+
+documents
+- id
+- url UNIQUE
+- title
+- markdown                # raw
+- cleaned_markdown
+- context
+- summary
+- processing_stage        # pending / processing / done / error
+- needs_retry INTEGER     # 0/1
+- created_at
+- updated_at

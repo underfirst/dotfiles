@@ -1,0 +1,12 @@
+{
+  "markdown_dir": "/path/to/bookmarks_dir",
+  "sqlite_path": "/path/to/bookmarks/bk.sqlite3",
+  "chrome_debug_port": 9222,
+  "llm": {
+    "base_url": "http://localhost:11434",
+    "api_key": "dummy",
+    "model": "qwen3-vl:8b",
+    "temperature": 1.0,
+    "max_input_chars": 10000
+  }
+}
