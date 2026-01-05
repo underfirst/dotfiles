@@ -16,10 +16,12 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sqlite3
 import subprocess
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 import requests
@@ -366,6 +368,99 @@ def run_context_job(db_path: Path):
 
 
 # -------------------------
+# Translate markdown sections
+# -------------------------
+@dataclass
+class Section:
+    level: int
+    title: str
+    body: str
+
+
+def split_markdown_sections(md: str) -> list[Section]:
+    lines = md.splitlines()
+    sections = []
+
+    current_title = None
+    current_level = 1
+    current_body = []
+
+    header_re = re.compile(r"^(#{1,6})\s+(.*)$")
+
+    for line in lines:
+        m = header_re.match(line)
+        if m:
+            if current_title is not None:
+                sections.append(
+                    Section(
+                        level=current_level,
+                        title=current_title,
+                        body="\n".join(current_body).strip(),
+                    )
+                )
+            current_level = len(m.group(1))
+            current_title = m.group(2).strip()
+            current_body = []
+        else:
+            current_body.append(line)
+
+    if current_title is not None:
+        sections.append(
+            Section(
+                level=current_level,
+                title=current_title,
+                body="\n".join(current_body).strip(),
+            )
+        )
+
+    return sections
+
+
+def translate_markdown_sections(
+    md_text: str, cfg: dict, stream: bool = False, debug: bool = False
+) -> str:
+    llm = build_llm(cfg)
+
+    section_prompt = load_prompt("translate_section_v1.yaml")
+
+    sections = split_markdown_sections(md_text)
+
+    translated_sections: list[str] = []
+
+    console = Console()
+
+    for idx, sec in enumerate(sections, 1):
+        if not stream:
+            console.print(
+                f"[bold]Translating {idx}/{len(sections)}:[/bold] {sec.title}"
+            )
+        if sec.body.strip() == "":
+            continue
+
+        prompt = section_prompt.replace("{{body}}", sec.body)
+
+        translated_body = llm.invoke(prompt).content.strip()
+
+        translated_md = f"{'#' * sec.level} {sec.title}\n\n{translated_body}"
+        translated_md = (
+            translated_md.replace("、", ", ")
+            .replace("。", ". ")
+            .replace("（", " (")
+            .replace("）", ") ")
+        )
+        translated_sections.append(translated_md)
+
+        if debug:
+            console.log(
+                f"current translate prompt: {prompt},  translate: {translated_body}"
+            )
+        if stream:
+            console.print(Markdown(translated_md.strip() + "\n\n"))
+
+    return "\n\n".join(translated_sections)
+
+
+# -------------------------
 # Validation helpers
 # -------------------------
 
@@ -559,6 +654,7 @@ def skim(no_live: bool = False, translate: bool = False):
                 "md",
                 "--image-export-mode",
                 "placeholder",
+                "--ocr",
                 "--ocr-engine",
                 "ocrmac",
                 "--table-mode",
@@ -611,6 +707,81 @@ def skim(no_live: bool = False, translate: bool = False):
 
             # Markdown を再生成して更新
             live.update(Markdown(buffer))
+
+
+@context_app.command()
+def translate(output: Path | None = None, stream: bool = False, debug: bool = False):
+    cfg = load_config()
+    validate_context(cfg, require_docling=True)
+
+    title, url = get_active_tab()
+    title = title or url
+
+    console = Console()
+    console.print(f"[bold]Translating:[/bold] {title}")
+    console.print(url)
+    # AI! urlのコンテンツpdfかそれ以外かoptionを分ける.
+    # requests.get(url)でContent-Typeを確認してpdfならpdf用のoptionを使うようにする.
+    """
+    default_option = [
+                "docling",
+                url,
+                "--to",
+                "md",
+                "--image-export-mode",
+                "placeholder",
+                "--table-mode",
+                "accurate",
+                "--output",
+                str(tmpdir_path),
+            ],
+    
+    pdfは現在の通り.
+    """
+
+    # -------------------------
+    # docling (URL直接)
+    # -------------------------
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+
+        console.print("Running docling...")
+        subprocess.run(
+            [
+                "docling",
+                url,
+                "--to",
+                "md",
+                "--image-export-mode",
+                "placeholder",
+                "--ocr-engine",
+                "ocrmac",
+                "--table-mode",
+                "accurate",
+                "--enrich-fomula",
+                "--output",
+                str(tmpdir_path),
+            ],
+            check=True,
+        )
+
+        md_files = list(tmpdir_path.glob("*.md"))
+        if not md_files:
+            typer.echo("Markdownが生成されませんでした", err=True)
+            raise typer.Exit(1)
+
+        md_text = md_files[0].read_text()
+
+    # -------------------------
+    # 翻訳
+    # -------------------------
+    translated = translate_markdown_sections(md_text, cfg, stream=stream, debug=debug)
+
+    console.print(Markdown(translated))
+
+    if output:
+        output.write_text(translated, encoding="utf-8")
+        console.print(f"[green]Saved to {output}[/green]")
 
 
 if __name__ == "__main__":
