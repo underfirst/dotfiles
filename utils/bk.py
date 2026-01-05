@@ -6,6 +6,8 @@
 #   "typer",
 #   "langchain",
 #   "langchain-ollama",
+#   "langchain-community",
+#   "langchain-openai",
 #   "pyyaml",
 #   "websocket-client",
 #   "rich",
@@ -27,7 +29,10 @@ from pathlib import Path
 import requests
 import typer
 import yaml
+from langchain_community.callbacks import get_openai_callback
+from langchain_core.language_models.base import BaseLanguageModel
 from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from main_content_extractor import MainContentExtractor
 from rich.console import Console
 from rich.live import Live
@@ -288,17 +293,23 @@ def truncate(text: str, max_chars: int) -> str:
     return text[:max_chars]
 
 
-def build_llm(cfg: dict) -> ChatOllama:
+def build_llm(cfg: dict, model: str = "local") -> BaseLanguageModel:
     llm_cfg = cfg.get("llm", None)
     if llm_cfg is None:
         typer.echo("LLM configuration not found.", err=True)
         raise typer.Exit(1)
-    return ChatOllama(
-        base_url=llm_cfg["base_url"],
-        api_key=llm_cfg["api_key"],
-        model=llm_cfg["model"],
-        temperature=llm_cfg["temperature"],
-    )
+    if model == "local":
+        llm = ChatOllama(
+            base_url=llm_cfg["base_url"],
+            api_key=llm_cfg["api_key"],
+            model=llm_cfg["model"],
+            temperature=llm_cfg["temperature"],
+        )
+    elif model == "gpt-5-nano":
+        llm = ChatOpenAI(model=model, reasoning_effort="low")
+    else:
+        raise ValueError(f"Unsupported model: {model}")
+    return llm
 
 
 def run_context_job(db_path: Path):
@@ -419,7 +430,7 @@ def split_markdown_sections(md: str) -> list[Section]:
 def translate_markdown_sections(
     md_text: str, cfg: dict, stream: bool = False, debug: bool = False
 ) -> str:
-    llm = build_llm(cfg)
+    llm = build_llm(cfg, "gpt-5-nano")
 
     section_prompt = load_prompt("translate_section_v1.yaml")
 
@@ -428,34 +439,49 @@ def translate_markdown_sections(
     translated_sections: list[str] = []
 
     console = Console()
+    with get_openai_callback() as cb:
+        for idx, sec in enumerate(sections, 1):
+            if not stream:
+                console.print(
+                    f"[bold]Translating {idx}/{len(sections)}:[/bold] {sec.title}"
+                )
+            if sec.body.strip() == "":
+                continue
 
-    for idx, sec in enumerate(sections, 1):
-        if not stream:
-            console.print(
-                f"[bold]Translating {idx}/{len(sections)}:[/bold] {sec.title}"
+            prompt = section_prompt.replace("{{body}}", sec.body)
+
+            translated_body = llm.invoke(prompt).content.strip()
+            translated_body = (
+                translated_body.replace("、", ", ")
+                .replace(", \n", ", ")
+                .replace("。", ". \n")
+                .replace("（", " (")
+                .replace("）", ") ")
             )
-        if sec.body.strip() == "":
-            continue
+            removed_comment_body = []
+            for line in translated_body.splitlines():
+                if line.strip().startswith("<!--") and line.strip().endswith("-->"):
+                    continue
+                removed_comment_body.append(line)
+            translated_body = "\n".join(removed_comment_body)
 
-        prompt = section_prompt.replace("{{body}}", sec.body)
+            translated_md = f"{'#' * sec.level} {sec.title}\n\n{translated_body}"
 
-        translated_body = llm.invoke(prompt).content.strip()
+            remove_comment_md = []
+            for line in translated_md.splitlines():
+                if line.strip().startswith("<!--") and line.strip().endswith("-->"):
+                    continue
+                remove_comment_md.append(line)
+            translated_md = "\n".join(remove_comment_md)
+            translated_sections.append(translated_md)
 
-        translated_md = f"{'#' * sec.level} {sec.title}\n\n{translated_body}"
-        translated_md = (
-            translated_md.replace("、", ", ")
-            .replace("。", ". ")
-            .replace("（", " (")
-            .replace("）", ") ")
-        )
-        translated_sections.append(translated_md)
-
-        if debug:
-            console.log(
-                f"current translate prompt: {prompt},  translate: {translated_body}"
-            )
-        if stream:
-            console.print(Markdown(translated_md.strip() + "\n\n"))
+            if debug:
+                console.log(
+                    f"current translate prompt: {prompt},  translate: {translated_body}"
+                )
+            if stream:
+                console.print(Markdown(translated_md.strip() + "\n\n"))
+        console.log(f"Total tokens used: {cb}")
 
     return "\n\n".join(translated_sections)
 
@@ -503,8 +529,8 @@ def validate_context(cfg: dict, require_docling: bool = False):
     llm = cfg.get("llm", {})
     required_keys = ["base_url", "api_key", "model", "temperature", "max_input_chars"]
     for k in required_keys:
-        if k not in llm:
-            typer.echo(f"llm.{k} が設定されていません", err=True)
+        if k not in llm.get("local", {}).keys():
+            typer.echo(f"llm.local.{k} が設定されていません", err=True)
             raise typer.Exit(1)
     if require_docling and shutil.which("docling") is None:
         typer.echo("doclingコマンドが見つかりません", err=True)
@@ -736,35 +762,19 @@ def translate(output: Path | None = None, stream: bool = False, debug: bool = Fa
 
         console.print("Running docling...")
 
+        docling_cmd = [
+            "docling",
+            url,
+            "--to",
+            "md",
+            "--image-export-mode",
+            "placeholder",
+            "--table-mode",
+            "accurate",
+        ]
         if is_pdf:
-            docling_cmd = [
-                "docling",
-                url,
-                "--to",
-                "md",
-                "--image-export-mode",
-                "placeholder",
-                "--ocr-engine",
-                "ocrmac",
-                "--table-mode",
-                "accurate",
-                "--enrich-fomula",
-                "--output",
-                str(tmpdir_path),
-            ]
-        else:
-            docling_cmd = [
-                "docling",
-                url,
-                "--to",
-                "md",
-                "--image-export-mode",
-                "placeholder",
-                "--table-mode",
-                "accurate",
-                "--output",
-                str(tmpdir_path),
-            ]
+            docling_cmd += ["--ocr-engine", "ocrmac", "--enrich-formula"]
+        docling_cmd += ["--output", str(tmpdir_path)]
 
         subprocess.run(
             docling_cmd,
