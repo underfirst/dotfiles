@@ -102,6 +102,8 @@ def get_all_tabs() -> list[tuple[str, str]]:
 
 def get_rendered_html(url: str, port: int) -> Path | None:
     try:
+        from main_content_extractor import MainContentExtractor
+
         tabs = requests.get(f"http://localhost:{port}/json").json()
         tab = next(t for t in tabs if t.get("type") == "page" and t.get("url") == url)
 
@@ -122,8 +124,11 @@ def get_rendered_html(url: str, port: int) -> Path | None:
         html = json.loads(ws.recv())["result"]["outerHTML"]
         ws.close()
 
+        # main_content_extractorで主要コンテンツのみ抽出
+        extracted_html = MainContentExtractor.extract(html)
+
         fd, path = tempfile.mkstemp(suffix=".html")
-        Path(path).write_text(html)
+        Path(path).write_text(extracted_html)
         return Path(path)
 
     except Exception as e:
