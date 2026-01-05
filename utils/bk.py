@@ -305,7 +305,7 @@ def build_llm(cfg: dict, model: str = "local") -> BaseLanguageModel:
             model=llm_cfg["model"],
             temperature=llm_cfg["temperature"],
         )
-    elif model == "gpt-5-nano":
+    elif model == "gpt-":
         llm = ChatOpenAI(model=model, reasoning_effort="low")
     else:
         raise ValueError(f"Unsupported model: {model}")
