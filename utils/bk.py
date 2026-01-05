@@ -8,7 +8,8 @@
 #   "langchain-ollama",
 #   "pyyaml",
 #   "websocket-client",
-#   "rich"
+#   "rich",
+#   "MainContentExtractor"
 # ]
 # ///
 
@@ -25,6 +26,7 @@ import requests
 import typer
 import yaml
 from langchain_ollama import ChatOllama
+from main_content_extractor import MainContentExtractor
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -100,10 +102,8 @@ def get_all_tabs() -> list[tuple[str, str]]:
 # -------------------------
 
 
-def get_rendered_html(url: str, port: int) -> Path | None:
+def get_rendered_html(url: str, port: int, extract_main: bool = False) -> Path | None:
     try:
-        from main_content_extractor import MainContentExtractor
-
         tabs = requests.get(f"http://localhost:{port}/json").json()
         tab = next(t for t in tabs if t.get("type") == "page" and t.get("url") == url)
 
@@ -125,10 +125,17 @@ def get_rendered_html(url: str, port: int) -> Path | None:
         ws.close()
 
         # main_content_extractorで主要コンテンツのみ抽出
-        extracted_html = MainContentExtractor.extract(html)
+        if extract_main:
+            try:
+                extracted_html = MainContentExtractor.extract(
+                    html, output_format="html"
+                )
+                html = extracted_html
+            except Exception as e:
+                typer.echo(f"[rendered] MainContentExtractor failed: {e}")
 
         fd, path = tempfile.mkstemp(suffix=".html")
-        Path(path).write_text(extracted_html)
+        Path(path).write_text(html)
         return Path(path)
 
     except Exception as e:
@@ -534,6 +541,7 @@ def skim(no_live: bool = False, translate: bool = False):
     # -------------------------
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
+        # AI! get_rendered_htmlをextract_main=Trueで使うように修正してください.
 
         console.print("Running docling...")
         subprocess.run(
