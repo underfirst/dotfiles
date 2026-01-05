@@ -213,9 +213,11 @@ def enqueue_docling(
     title: str,
     db_path: Path,
     force: bool,
+    is_html: bool = False,
 ):
     ensure_pueue_group()
 
+    # AI! is_htmlがtrueの時, sourceは生のhtmlのテキストです. そこで, is_htmlがtrueの時は, tempfileに保存してから保存したパスをdoclingに渡すように修正してください
     cmd = f"""
 set -e
 TMPDIR=$(mktemp -d)
