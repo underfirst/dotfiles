@@ -219,8 +219,9 @@ def enqueue_docling(
 
     # is_htmlがtrueの時、sourceは生のhtmlテキストなので、一時ファイルに保存してそのパスをdoclingに渡す
     if is_html:
-        import tempfile
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode="w", encoding="utf-8") as tf:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".html", mode="w", encoding="utf-8"
+        ) as tf:
             tf.write(source)
             html_path = tf.name
         docling_input = html_path
