@@ -539,15 +539,20 @@ def skim(no_live: bool = False, translate: bool = False):
     # -------------------------
     # docling
     # -------------------------
+    # get_rendered_htmlをextract_main=Trueで使い、主要コンテンツのみ抽出したHTMLをdoclingに渡す
+    html_path = get_rendered_html(url, cfg.get("chrome_debug_port", 9222), extract_main=True)
+    if html_path is None:
+        typer.echo("HTMLの取得に失敗しました。", err=True)
+        raise typer.Exit(1)
+
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
-        # AI! get_rendered_htmlをextract_main=Trueで使うように修正してください.
 
         console.print("Running docling...")
         subprocess.run(
             [
                 "docling",
-                url,
+                str(html_path),
                 "--to",
                 "md",
                 "--image-export-mode",
