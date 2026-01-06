@@ -447,6 +447,7 @@ def translate_markdown_sections(
     stream: bool = False,
     debug: bool = False,
     model: str = "gpt-5-mini",
+    output: Path | None = None,
 ) -> str:
     llm = build_llm(cfg, model)
 
@@ -517,6 +518,12 @@ def translate_markdown_sections(
             )
         if stream:
             console.print(Markdown(translated_md.strip() + "\n\n"))
+            if output:
+                if not output.name.endswith(".md"):
+                    output.mkdir(parents=True, exist_ok=True)
+                    output = output / "translated.md"
+                with open(output, "a", encoding="utf-8") as f:
+                    f.write(translated_md.strip() + "\n\n")
     console.print(f"Total tokens used: {callback.usage_metadata}")
 
     return "\n\n".join(translated_sections)
@@ -773,6 +780,7 @@ def skim(no_live: bool = False, translate: bool = False):
 
 @context_app.command()
 def translate(
+    url: str | None = None,
     output: Path | None = None,
     debug: bool = False,
     model: str = "gpt-5-mini",
@@ -780,8 +788,16 @@ def translate(
     cfg = load_config()
     validate_context(cfg, require_docling=True)
 
-    title, url = get_active_tab()
-    title = title or url
+    try:
+        title, tab_url = get_active_tab()
+        title = title or tab_url
+        if url is None:
+            url = tab_url
+    except Exception:
+        pass
+    if url is None:
+        typer.echo("URLを指定するか、Chromeのアクティブタブを開いてください", err=True)
+        exit(1)
 
     console = Console()
     console.print(f"[bold]Translating:[/bold] {title}")
@@ -832,7 +848,7 @@ def translate(
     # 翻訳
     # -------------------------
     translated = translate_markdown_sections(
-        md_text, cfg, stream=True, debug=debug, model=model
+        md_text, cfg, stream=True, debug=debug, model=model, output=output
     )
 
     if output:
