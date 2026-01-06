@@ -108,16 +108,13 @@ if OS.mac?
 
   # app
   cask "jordanbaird-ice"
-  cask "kitty"
+  cask "ghostty"
   cask "cmd-eikana"
   cask "docker"
   cask "rectangle"
   cask "appcleaner"
   cask "alfred"
   cask "google-chrome"
-  cask "thunderbird"
-  cask "pycharm"
-  cask "iterm2"
   cask "bettertouchtool"
   cask "todoist"
   cask "1password"
@@ -126,5 +123,4 @@ if OS.mac?
   cask "microsoft-excel"
   cask "microsoft-word"
   cask "microsoft-powerpoint"
-  cask "dbeaver-community"
 end

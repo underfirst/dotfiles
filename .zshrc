@@ -144,7 +144,6 @@ alias vi=nvim
 alias p=pueue
 
 alias gg=lazygit
-alias imcat="timg -pk --title -W"
 
 alias ipy=ipython
 alias jp='jupyter notebook'
@@ -171,7 +170,6 @@ alias et="eza -T -L 3 -a -I 'node_modules|.git|.cache' --icons"
 alias ls=ei
 alias la=ea
 alias ll=ee
-alias cat=bat
 
 alias bk="~/dotfiles/utils/bk.py"
 
@@ -299,21 +297,18 @@ a () {
   [[ -n "$app" ]] && open "/Applications/${app}.app"
 }
 
-cat () {
-  # 引数の拡張子が画像, pdfの時はtimg -pk -W , それ以外はbatで表示する柔軟なcatの実装
-  if [ $# -eq 0 ]; then
-    bat
-    return
-  fi
-
+catf() {
   for file in "$@"; do
-    ext="${file##*.}"
-    case "${ext:l}" in
-      jpg|jpeg|png|gif|bmp|webp|tiff|tif|svg)
-        timg -pk -W "$file"
+    [ -e "$file" ] || { echo "catf: $file not found" >&2; continue; }
+
+    ext=$(printf '%s\n' "$file" | tr '[:upper:]' '[:lower:]')
+
+    case "$ext" in
+      *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.webp|*.tiff|*.tif|*.pdf)
+        timg -pk "$file"
         ;;
-      pdf)
-        timg -pk -W "$file"
+      *.tsv|*.csv|*.xls|*.xlsx)
+        tw "$file"
         ;;
       *)
         bat "$file"
@@ -321,6 +316,8 @@ cat () {
     esac
   done
 }
+alias cat=catf
+
 
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
