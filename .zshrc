@@ -299,6 +299,9 @@ a () {
   [[ -n "$app" ]] && open "/Applications/${app}.app"
 }
 
+cat () {
+  # AI! 引数の拡張子が画像, pdfの時はtimg -pk -W , それ以外はbatで表示する柔軟なcatの実装をして
+}
 
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
