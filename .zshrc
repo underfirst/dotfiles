@@ -300,7 +300,26 @@ a () {
 }
 
 cat () {
-  # AI! 引数の拡張子が画像, pdfの時はtimg -pk -W , それ以外はbatで表示する柔軟なcatの実装をして
+  # 引数の拡張子が画像, pdfの時はtimg -pk -W , それ以外はbatで表示する柔軟なcatの実装
+  if [ $# -eq 0 ]; then
+    bat
+    return
+  fi
+
+  for file in "$@"; do
+    ext="${file##*.}"
+    case "${ext:l}" in
+      jpg|jpeg|png|gif|bmp|webp|tiff|tif|svg)
+        timg -pk -W "$file"
+        ;;
+      pdf)
+        timg -pk -W "$file"
+        ;;
+      *)
+        bat "$file"
+        ;;
+    esac
+  done
 }
 
 # Shell-GPT integration ZSH v0.2
