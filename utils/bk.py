@@ -29,7 +29,7 @@ from pathlib import Path
 import requests
 import typer
 import yaml
-from langchain_community.callbacks import get_openai_callback
+from langchain_core.callbacks import UsageMetadataCallbackHandler
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
@@ -299,6 +299,7 @@ def build_llm(cfg: dict, model: str = "local") -> BaseLanguageModel:
         typer.echo("LLM configuration not found.", err=True)
         raise typer.Exit(1)
     if model == "local":
+        llm_cfg = llm_cfg.get("local", {})
         llm = ChatOllama(
             base_url=llm_cfg["base_url"],
             api_key=llm_cfg["api_key"],
@@ -307,7 +308,17 @@ def build_llm(cfg: dict, model: str = "local") -> BaseLanguageModel:
         )
     elif model.find("gpt-") != -1:
         if model.find("gpt-5") != -1:
-            llm = ChatOpenAI(model=model, reasoning_effort="low")
+            llm_cfg = llm_cfg.get(model, {})
+            base_url = llm_cfg.get("base_url", None)
+            api_key = llm_cfg.get("api_key", None)
+            model = llm_cfg.get("model", model)
+            reasoning_effort = llm_cfg.get("reasoning_effort", None)
+            llm = ChatOpenAI(
+                model=model,
+                base_url=base_url,
+                api_key=api_key,
+                reasoning_effort=reasoning_effort,
+            )
         else:
             llm = ChatOpenAI(model=model)
     else:
@@ -435,7 +446,7 @@ def translate_markdown_sections(
     cfg: dict,
     stream: bool = False,
     debug: bool = False,
-    model: str = "gpt-5-nano",
+    model: str = "gpt-5-mini",
 ) -> str:
     llm = build_llm(cfg, model)
 
@@ -444,51 +455,69 @@ def translate_markdown_sections(
     sections = split_markdown_sections(md_text)
 
     translated_sections: list[str] = []
-
+    callback = UsageMetadataCallbackHandler()
     console = Console()
-    with get_openai_callback() as cb:
-        for idx, sec in enumerate(sections, 1):
-            if not stream:
-                console.print(
-                    f"[bold]Translating {idx}/{len(sections)}:[/bold] {sec.title}"
-                )
-            if sec.body.strip() == "":
-                continue
-
-            prompt = section_prompt.replace("{{body}}", sec.body)
-
-            translated_body = llm.invoke(prompt).content.strip()
-            translated_body = (
-                translated_body.replace("、", ", ")
-                .replace(", \n", ", ")
-                .replace("。", ". \n")
-                .replace("（", " (")
-                .replace("）", ") ")
+    for idx, sec in enumerate(sections, 1):
+        if not stream:
+            console.print(
+                f"[bold]Translating {idx}/{len(sections)}:[/bold] {sec.title}"
             )
-            removed_comment_body = []
-            for line in translated_body.splitlines():
-                if line.strip().startswith("<!--") and line.strip().endswith("-->"):
-                    continue
-                removed_comment_body.append(line)
-            translated_body = "\n".join(removed_comment_body)
+        if sec.body.strip() == "":
+            continue
 
-            translated_md = f"{'#' * sec.level} {sec.title}\n\n{translated_body}"
+        prompt = section_prompt.replace("{{body}}", sec.body)
 
-            remove_comment_md = []
-            for line in translated_md.splitlines():
-                if line.strip().startswith("<!--") and line.strip().endswith("-->"):
-                    continue
-                remove_comment_md.append(line)
-            translated_md = "\n".join(remove_comment_md)
-            translated_sections.append(translated_md)
+        translated_body = llm.invoke(
+            prompt, config={"callbacks": [callback]}
+        ).content.strip()
+        translated_body = (
+            translated_body.replace("、", ", ")
+            .replace(", \n", ", ")
+            .replace("。", ". \n")
+            .replace("（", " (")
+            .replace("）", ") ")
+        )
 
-            if debug:
-                console.log(
-                    f"current translate prompt: {prompt},  translate: {translated_body}"
-                )
-            if stream:
-                console.print(Markdown(translated_md.strip() + "\n\n"))
-        console.log(f"Total tokens used: {cb}")
+        JP = r"[一-龯ぁ-んァ-ヶー]"
+
+        # ① 読点後の改行を削除
+        translated_body = re.sub(
+            rf"({JP}+),\s*\n\s*",
+            r"\1, ",
+            translated_body,
+        )
+
+        # ② 句点後に改行を挿入
+        translated_body = re.sub(
+            rf"({JP}+)\. (?!\n)",
+            r"\1. \n",
+            translated_body,
+        )
+
+        removed_comment_body = []
+        for line in translated_body.splitlines():
+            if line.strip().startswith("<!--") and line.strip().endswith("-->"):
+                continue
+            removed_comment_body.append(line)
+        translated_body = "\n".join(removed_comment_body)
+
+        translated_md = f"{'#' * sec.level} {sec.title}\n\n{translated_body}"
+
+        remove_comment_md = []
+        for line in translated_md.splitlines():
+            if line.strip().startswith("<!--") and line.strip().endswith("-->"):
+                continue
+            remove_comment_md.append(line)
+        translated_md = "\n".join(remove_comment_md)
+        translated_sections.append(translated_md)
+
+        if debug:
+            console.log(
+                f"current translate prompt: {prompt},  translate: {translated_body}"
+            )
+        if stream:
+            console.print(Markdown(translated_md.strip() + "\n\n"))
+    console.print(f"Total tokens used: {callback.usage_metadata}")
 
     return "\n\n".join(translated_sections)
 
@@ -745,9 +774,8 @@ def skim(no_live: bool = False, translate: bool = False):
 @context_app.command()
 def translate(
     output: Path | None = None,
-    stream: bool = False,
     debug: bool = False,
-    model: str = "gpt-5-nano",
+    model: str = "gpt-5-mini",
 ):
     cfg = load_config()
     validate_context(cfg, require_docling=True)
@@ -804,10 +832,8 @@ def translate(
     # 翻訳
     # -------------------------
     translated = translate_markdown_sections(
-        md_text, cfg, stream=stream, debug=debug, model=model
+        md_text, cfg, stream=True, debug=debug, model=model
     )
-
-    console.print(Markdown(translated))
 
     if output:
         output.write_text(translated, encoding="utf-8")
