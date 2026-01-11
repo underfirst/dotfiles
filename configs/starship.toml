@@ -8,7 +8,9 @@ $directory\
 [](fg:#394260 bg:#212736)\
 $git_branch\
 $git_status\
-[](fg:#212736) $character"""
+$git_metrics\
+[](fg:#212736)\n\
+$character"""
 
 [directory]
 style = "fg:#a3aed2 bg:#394260"
@@ -35,6 +37,9 @@ format = '[[ $symbol $branch ](fg:#212736 bg:#1d2230)]($style)'
 [git_status]
 style = "bg:#212736"
 format = '[[($all_status$ahead_behind )](fg:#212736 bg:#1d2230)]($style)'
+
+[git_metrics]
+format = '([+$added](fg:#212736 bg:#1d2230) [~$deleted](fg:#212736 bg:#1d2230)'
 
 [python]
 symbol = "🐍 "
