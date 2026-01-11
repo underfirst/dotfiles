@@ -1,23 +1,17 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
+(fg:a3aed2 bg:#769ff0)
 $time\
-[](bg:#769ff0 fg:#a3aed2)\
+[](fg:#a3aed2 bg:#394260)\
 $directory\
-[](fg:#769ff0 bg:#394260)\
+[](fg:#394260 bg:#212736)\
 $git_branch\
 $git_status\
-[](fg:#394260 bg:#212736)\
-$python\
-$nodejs\
-$rust\
-$golang\
-$php\
-[](fg:#212736)\
-\n$character"""
+[](fg:#212736) $character"""
 
 [directory]
-style = "fg:#e3e5e5 bg:#769ff0"
+style = "fg:#a3aed2 bg:#394260"
 format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
@@ -35,12 +29,12 @@ error_symbol = '[\$](bold red)'
 
 [git_branch]
 symbol = ""
-style = "bg:#394260"
-format = '[[ $symbol $branch ](fg:#769ff0 bg:#394260)]($style)'
+style = "bg:#212736"
+format = '[[ $symbol $branch ](fg:#212736 bg:#1d2230)]($style)'
 
 [git_status]
-style = "bg:#394260"
-format = '[[($all_status$ahead_behind )](fg:#769ff0 bg:#394260)]($style)'
+style = "bg:#212736"
+format = '[[($all_status$ahead_behind )](fg:#212736 bg:#1d2230)]($style)'
 
 [python]
 symbol = "🐍 "
