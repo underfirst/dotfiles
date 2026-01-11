@@ -14,6 +14,13 @@ $nodejs\
 [](fg:#1d2230)\n\
 $character"""
 
+
+[time]
+disabled = false
+time_format = "%T"
+style = "bg:#769ff0"
+format = '[[ $time ](fg:#a0a9cb bg:#a3aed2 )]($style)'
+
 [directory]
 style = "fg:#769ff0 bg:#394260"
 format = "[ $path ]($style)"
@@ -53,9 +60,3 @@ format = '[[$symbol $virtualenv](fg:#a0a9cb bg:#1d2230) ]($style)'
 symbol = ""
 style = "bg:#1d2230"
 format = '[[ $symbol ($version) ](fg:#a0a9cb bg:#1d2230) ]($style)'
-
-[time]
-disabled = false
-time_format = "%T"                                       # Hour:Minute Format
-style = "bg:#769ff0"
-format = '[[  $time ](fg:#a0a9cb bg:#a3aed2 )]($style)'
