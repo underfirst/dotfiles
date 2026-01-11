@@ -7,7 +7,6 @@ $time\
 $directory\
 [](fg:#394260 bg:#212736)\
 $git_branch\
-$git_status\
 $git_metrics\
 [](fg:#212736)\n\
 $character"""
@@ -39,7 +38,8 @@ style = "bg:#212736"
 format = '[[($all_status$ahead_behind )](fg:#212736 bg:#1d2230)]($style)'
 
 [git_metrics]
-format = '([+$added](fg:#212736 bg:#1d2230) [~$deleted](fg:#212736 bg:#1d2230)'
+format = '([+$added](fg:#212736 bg:#1d2230))[-$deleted](fg:#212736 bg:#1d2230)'
+disabled = false
 
 [python]
 symbol = "🐍 "
