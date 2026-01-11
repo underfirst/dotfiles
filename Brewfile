@@ -23,6 +23,7 @@ brew "mono"
 brew "readline"
 brew "xz"
 brew "pipx"
+brew "ifstat"
 
 
 # utils

@@ -70,6 +70,11 @@ cd cod
 go build
 cd ~
 
+# Install starship
+if [ ! -e ~/.config/starship.toml ]; then
+  mkdir -p ~/.config
+  cp configs/starship.toml ~/.config/starship.toml
+fi
 # Install tmux plugin manager
 if [ ! -e ~/.tmux/plugins/tpm ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

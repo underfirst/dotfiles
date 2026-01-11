@@ -9,10 +9,13 @@ export PATH=/usr/local/Homebrew/bin:${PATH}
 export PATH=${HOME}/cod:${PATH}
 export PATH=${PATH}:/opt/homebrew/opt/mysql-client/bin
 export PATH=${PATH}:$HOME/.nodebrew/current/bin
-export PS1="%F{green}%B%n@%m%f %F{blue}%. %f%b%#" 
+export PS1="%F{blue}%~ %f%b%#" 
 if [ $(command -v nvim) ]; then
   export EDITOR=nvim
 fi
+
+# eval
+eval "$(starship init zsh)" 
 
 
 
@@ -144,6 +147,7 @@ alias vi=nvim
 alias p=pueue
 
 alias gg=lazygit
+alias imcat="timg -pk --title -W"
 
 alias ipy=ipython
 alias jp='jupyter notebook'
