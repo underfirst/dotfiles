@@ -41,7 +41,7 @@ style = "bg:#212736"
 format = '[[($all_status$ahead_behind)](fg:#769ff0 bg:#212736)]($style)'
 
 [git_metrics]
-format = '(\([+$added](fg:#769ff0 bg:#212736))[|-$deleted\)](fg:#769ff0 bg:#212736)'
+format = '[(\(+$added|-$deleted\))](fg:#769ff0 bg:#212736)'
 disabled = false
 
 [python]
