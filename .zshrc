@@ -301,26 +301,50 @@ a () {
   [[ -n "$app" ]] && open "/Applications/${app}.app"
 }
 
-catf() {
+
+see() {
+  # 引数なしの場合: カレントディレクトリ直下を fzf で選択
+  if [ "$#" -eq 0 ]; then
+    local selected
+    selected=$(ls -1A | fzf --prompt="see> ")
+    [ -n "$selected" ] && catf "$selected"
+    return
+  fi
+
   for file in "$@"; do
-    [ -e "$file" ] || { echo "catf: $file not found" >&2; continue; }
+    [ -e "$file" ] || { echo "see: $file not found" >&2; continue; }
+
+    # ディレクトリの場合
+    if [ -d "$file" ]; then
+      ls -alh --total-size "$file"
+      continue
+    fi
 
     ext=$(printf '%s\n' "$file" | tr '[:upper:]' '[:lower:]')
 
     case "$ext" in
-      *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.webp|*.tiff|*.tif|*.pdf)
+      # 画像・PDF
+      *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.webp|*.tiff|*.tif)
         timg -pk "$file"
         ;;
+      *.pdf|*.doc|*.docx|*.ppt|*.pptx)
+        open "$file"
+        ;;
+      # 表形式
       *.tsv|*.csv|*.xls|*.xlsx)
         tw "$file"
         ;;
+      # JSON
+      *.json)
+        fx "$file"
+        ;;
+      # その他テキスト
       *)
         bat "$file"
         ;;
     esac
   done
 }
-alias cat=catf
 
 
 # Shell-GPT integration ZSH v0.2
