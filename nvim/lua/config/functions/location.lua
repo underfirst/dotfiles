@@ -36,4 +36,8 @@ function M.copy_file_path()
   vim.notify("Copied file path: " .. file, vim.log.levels.INFO)
 end
 
+--- AI! カーソルのあるファイルパスをpythonのimport形式でclipboardにコピーする関数を実装してください. 必要な仕様は以下に与えます.
+--- まず, この関数を実行するファイルの存在パスとしては,  ソースコードが, src/path/to/file.pyのような形で, プロジェクトのルートディレクトリからみて, src/以下に存在するファイルで利用します.
+--- ただし, importの際にはsrcはつけません. 例えばsrc/path/to/file.pyをインポートする場合, import path.to.file のような形でsrcを省略します.
+
 return M
