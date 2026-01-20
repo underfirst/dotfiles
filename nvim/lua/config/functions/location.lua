@@ -24,6 +24,16 @@ function M.copy_location()
   vim.notify("Copied: " .. text, vim.log.levels.INFO)
 end
 
---- AI! カーソルのあるファイルパスをclipboardにコピーする関数を実装してください. この関数では上の関数と異なり, カーソルのline numberやpositionは不要です.
+--- カーソルのあるファイルパスのみをclipboardにコピーする関数
+function M.copy_file_path()
+  local buf = 0
+  local file = vim.api.nvim_buf_get_name(buf)
+  if file == "" then
+    vim.notify("No file name", vim.log.levels.WARN)
+    return
+  end
+  vim.fn.setreg("+", file)
+  vim.notify("Copied file path: " .. file, vim.log.levels.INFO)
+end
 
 return M
