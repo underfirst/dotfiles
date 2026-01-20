@@ -43,9 +43,18 @@ vim.keymap.set(
   location.copy_location,
   { noremap = true, silent = true, desc = "Copy file:line:col to clipboard" }
 )
--- AI! 上を参考に以下を追加してください
--- <leader>yfでファイルパスのみコピー
--- <leader>ypでpythonのimport形式でコピー
+vim.keymap.set(
+  "n",
+  "<leader>yf",
+  location.copy_file_path,
+  { noremap = true, silent = true, desc = "Copy file path to clipboard" }
+)
+vim.keymap.set(
+  "n",
+  "<leader>yp",
+  location.copy_python_import_path,
+  { noremap = true, silent = true, desc = "Copy python import path to clipboard" }
+)
 
 -- accelerated jk
 vim.api.nvim_set_keymap("n", "j", "<Plug>(accelerated_jk_gj)", {})
