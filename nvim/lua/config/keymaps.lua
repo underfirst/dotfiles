@@ -39,10 +39,14 @@ vim.keymap.set(
 -- Location関連キーマップ
 vim.keymap.set(
   "n",
-  "<leader>yp",
+  "<leader>yc",
   location.copy_location,
   { noremap = true, silent = true, desc = "Copy file:line:col to clipboard" }
 )
+-- AI! 上を参考に以下を追加してください
+-- <leader>yfでファイルパスのみコピー
+-- <leader>ypでpythonのimport形式でコピー
 
+-- accelerated jk
 vim.api.nvim_set_keymap("n", "j", "<Plug>(accelerated_jk_gj)", {})
 vim.api.nvim_set_keymap("n", "k", "<Plug>(accelerated_jk_gk)", {})
