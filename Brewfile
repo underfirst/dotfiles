@@ -52,6 +52,7 @@ brew "bat"
 brew "zoxide"
 brew "poppler"
 brew "fd"
+brew "doxx"
 
 # misc
 brew "little-cms2"

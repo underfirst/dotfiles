@@ -308,7 +308,7 @@ see() {
   if [ "$#" -eq 0 ]; then
     local selected
     selected=$(ls -1A | fzf --prompt="see> ")
-    [ -n "$selected" ] && catf "$selected"
+    [ -n "$selected" ] && see "$selected"
     return
   fi
 
