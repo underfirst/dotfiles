@@ -53,6 +53,7 @@ brew "zoxide"
 brew "poppler"
 brew "fd"
 brew "doxx"
+brew "yazi"
 
 # misc
 brew "little-cms2"
@@ -94,6 +95,8 @@ brew "nkf"
 brew "pandoc"
 brew "portaudio"
 brew "rename"
+brew "sevenzip"
+brew "resvg"
 cask "font-hack-nerd-font"
 
 

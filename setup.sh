@@ -88,6 +88,9 @@ ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
 ln -s ~/dotfiles/.vimrc ~/.vimrc
 ln -s ~/dotfiles/vim ~/.vim
 ln -s ~/dotfiles/.ideavimrc .ideavimrc
+mkdir -p ~/.configs/yazi
+ln -s ~/dotfiles/configs/yazi/yazi.toml ~/.configs/yazi/yazi.toml
+ln -s ~/dotfiles/configs/yazi/theme.toml ~/.configs/yazi/theme.toml
 mkdir -p ~/.config
 ln -s ~/dotfiles/nvim ~/.config/nvim
 echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
