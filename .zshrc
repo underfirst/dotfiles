@@ -198,14 +198,6 @@ tkw () {
     done
 }
 
-# fzf directory and cd.
-fd() {
-  local dir
-  dir=$(find ${1:-.} -path '*/\.*' -prune \
-                  -o -type d -print 2> /dev/null | fzf +m) &&
-  cd "$dir"
-}
-
 # fzf process id and kill
 fkill() {
   local pid
@@ -214,11 +206,6 @@ fkill() {
   then
     echo $pid | xargs kill -${1:-9}
   fi
-}
-
-frepo() {
-  repo=$(ghq list |fzf);
-  cd $(ghq root)/$repo;
 }
 
 ####################
@@ -248,15 +235,6 @@ vssh() {
 ####################
 # Misc
 ####################
-rcd() {
-    temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
-    ranger --choosedir="$temp_file" -- "${@:-$PWD}"
-    if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
-        cd -- "$chosen_dir"
-    fi
-    rm -f -- "$temp_file"
-}
-
 y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	command yazi "$@" --cwd-file="$tmp"
@@ -292,21 +270,6 @@ EOF
   open "$url"
   echo "$timestamp $url" >> "$log_file"
   fi
-}
-
-
-a () {
-  local query="$*"
-  local app
-
-  app=$(
-    find /Applications -maxdepth 1 -type d -name "*.app" \
-      -exec basename {} .app \; \
-    | sort \
-    | fzf --prompt="Applications> " --query="$query"
-  )
-
-  [[ -n "$app" ]] && open "/Applications/${app}.app"
 }
 
 

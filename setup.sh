@@ -59,8 +59,6 @@ brew upgrade
 brew bundle install
 source ~/.zshrc
 
-# TODO: node:
-npm install -g commitzen cz-git
 pipx install sqlit-tui
 
 # Install cod
@@ -87,7 +85,6 @@ echo "Link dotfiles."
 ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
 ln -s ~/dotfiles/.vimrc ~/.vimrc
 ln -s ~/dotfiles/vim ~/.vim
-ln -s ~/dotfiles/.ideavimrc .ideavimrc
 mkdir -p ~/.configs/yazi
 ln -s ~/dotfiles/configs/yazi/yazi.toml ~/.configs/yazi/yazi.toml
 ln -s ~/dotfiles/configs/yazi/theme.toml ~/.configs/yazi/theme.toml
