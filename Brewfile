@@ -109,7 +109,6 @@ if OS.mac?
   brew "yammerjp/tap/pdef"
   brew "translate-shell"
   brew "ddgr"
-  brew "mas"
 
   # app
   cask "jordanbaird-ice"
