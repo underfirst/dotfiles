@@ -61,7 +61,7 @@ function M.copy_python_import_path()
   -- / → . に変換
   local import_path = rel_path:gsub("/", ".")
   -- import文を作成
-  local import_stmt = "import " .. import_path
+  local import_stmt = "from " .. import_path
 
   vim.fn.setreg("+", import_stmt)
   vim.notify("Copied python import: " .. import_stmt, vim.log.levels.INFO)

@@ -176,7 +176,6 @@ alias la=ea
 alias ll=ee
 
 alias gd='cd $(ghq list --full-path | fzf)'
-alias bk="~/dotfiles/utils/bk.py"
 
 ##############################
 # Function definitions
