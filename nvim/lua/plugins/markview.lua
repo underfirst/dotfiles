@@ -1,7 +1,10 @@
 return {
   {
     "OXY2DEV/markview.nvim",
-    lazy = false,
+    --lazy = false,
+    event = "VeryLazy", -- or earlier
+
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
 
     -- For blink.cmp's completion
     -- source

@@ -170,7 +170,6 @@ alias cghq='cd $(ghq root)';
 alias ei="eza --icons --git"
 alias ea="eza -la --icons --git"
 alias ee="eza -aahl --icons --git"
-alias et="eza -T -L 3 -a -I 'node_modules|.git|.cache' --icons"
 alias ls=ei
 alias la=ea
 alias ll=ee
@@ -211,30 +210,86 @@ fkill() {
 # nvim snippet
 ####################
 vs() {
-  cd ~/Documents/snippets/;
-  nvim
+  local session="snippets"
+  local dir="$HOME/Documents/snippets/"
+
+  # セッションが存在するかチェック
+  if ! tmux has-session -t "$session" 2>/dev/null; then
+    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
+    tmux new-session -d -s "$session" -c "$dir" "nvim"
+  fi
+
+  if [ -z "$TMUX" ]; then
+    # tmux外
+    tmux attach -t "$session"
+  else
+    # tmux内
+    tmux switch-client -t "$session"
+  fi
 }
 
 vm() {
-  cd  ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/Memo/;
-  nvim;
+  local session="memo"
+  local dir="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo"
+
+  # セッションが存在するかチェック
+  if ! tmux has-session -t "$session" 2>/dev/null; then
+    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
+    tmux new-session -d -s "$session" -c "$dir";
+    nvim;
+  fi
+
+  if [ -z "$TMUX" ]; then
+    # tmux外
+    tmux attach -t "$session"
+  else
+    # tmux内
+    tmux switch-client -t "$session"
+  fi
 }
 
 vd() {
-  cd ~/dotfiles/;
-  nvim;
+  local session="dotfiles"
+  local dir="$HOME/dotfiles/"
+
+  # セッションが存在するかチェック
+  if ! tmux has-session -t "$session" 2>/dev/null; then
+    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
+    tmux new-session -d -s "$session" -c "$dir"
+  fi
+
+  if [ -z "$TMUX" ]; then
+    # tmux外
+    tmux attach -t "$session"
+  else
+    # tmux内
+    tmux switch-client -t "$session"
+  fi
 }
 
 vssh() {
-  cd ~/.ssh/;
-  nvim config;
-}
+  local session="ssh_config"
+  local dir="$HOME/.ssh/"
 
+  # セッションが存在するかチェック
+  if ! tmux has-session -t "$session" 2>/dev/null; then
+    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
+    tmux new-session -d -s "$session" -c "$dir"
+  fi
+
+  if [ -z "$TMUX" ]; then
+    # tmux外
+    tmux attach -t "$session"
+  else
+    # tmux内
+    tmux switch-client -t "$session"
+  fi
+}
 
 ####################
 # Misc
 ####################
-y() {
+yd() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	command yazi "$@" --cwd-file="$tmp"
 	IFS= read -r -d '' cwd < "$tmp"
