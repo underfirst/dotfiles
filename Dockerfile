@@ -20,14 +20,18 @@ RUN apt update && apt -y upgrade && \
 
 FROM installer as brew_installer
 # Set up brew
-RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && \
-  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.bashrc && \
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
-  source ~/.bashrc
+
 
 COPY Brewfile /root/dotfiles/Brewfile
-RUN brew update -f && brew upgrade -y && brew bundle install
+
+RUN curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh > install.sh && \
+  chmod 755 install.sh && \
+  touch /.dockerenv && \
+  ./install.sh && \
+  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && \
+  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >>~/.bashrc && \
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)" && \
+  brew update -f && brew upgrade -y && brew bundle install
 
 FROM brew_installer as package_builder
 

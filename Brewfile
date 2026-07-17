@@ -1,5 +1,3 @@
-tap "homebrew/bundle"
-
 # dev packages
 brew "act"
 brew "glib"
