@@ -56,7 +56,7 @@ RUN mkdir -p ~/.config/yazi && \
 
 FROM package_builder as tmux_builder
 
-COPY .tmux.conf ~/dotfiles/.tmux.conf
+COPY .tmux.conf /root/dotfiles/.tmux.conf
 # Install tmux plugin manager
 RUN ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
 RUN  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && \
@@ -64,7 +64,7 @@ RUN  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && \
 
 FROM tmux_builder as nvim_builder
 
-COPY nvim/ ~/dotfiles/nvim/
+COPY nvim/ /root/dotfiles/nvim/
 RUN ln -s ~/dotfiles/nvim ~/.config/nvim
 RUN nvim --headless "+Lazy! sync" + qa && \
   nvim --headless "+TSUpdateSync" +qa & \
@@ -73,6 +73,6 @@ RUN nvim --headless "+Lazy! sync" + qa && \
 
 FROM nvim_builder
 
-COPY .zshrc ~/dotfiles/.zshrc
+COPY .zshrc /root/dotfiles/.zshrc
 RUN echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
 
