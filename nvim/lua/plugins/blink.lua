@@ -100,18 +100,10 @@ return {
 
       -- add ai_accept to <Tab> key
       if not opts.keymap["<Tab>"] then
-        if opts.keymap.preset == "super-tab" then -- super-tab
-          opts.keymap["<Tab>"] = {
-            require("blink.cmp.keymap.presets")["super-tab"]["<Tab>"][1],
-            LazyVim.cmp.map({ "snippet_forward", "ai_accept" }),
-            "fallback",
-          }
-        else -- other presets
-          opts.keymap["<Tab>"] = {
-            LazyVim.cmp.map({ "snippet_forward", "ai_accept" }),
-            "fallback",
-          }
-        end
+        opts.keymap["<Tab>"] = {
+          LazyVim.cmp.map({ "snippet_forward", "ai_accept" }),
+          "fallback",
+        }
       end
 
       -- Unset custom prop to pass blink.cmp validation
