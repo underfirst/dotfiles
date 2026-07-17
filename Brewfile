@@ -97,6 +97,8 @@ brew "portaudio"
 brew "rename"
 brew "sevenzip"
 brew "resvg"
+brew "rust"
+brew "starship"
 cask "font-hack-nerd-font"
 
 
