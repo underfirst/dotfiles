@@ -1,8 +1,7 @@
 FROM ubuntu:22.04 as installer
 
-COPY Brewfile /root/dotfiles
-WORKDIR /root
 SHELL [ "/bin/bash", "-c" ]
+WORKDIR /root/dotfiles
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="Asia/Tokyo"
@@ -14,11 +13,12 @@ RUN apt-get update && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-RUN apt -y upgrade && \
+RUN apt update && apt -y upgrade && \
   apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
   libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh
 
 
+FROM installer as brew_installer
 # Set up brew
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && \
@@ -26,9 +26,10 @@ RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && 
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
   source ~/.bashrc
 
+COPY Brewfile /root/dotfiles/Brewfile
 RUN brew update -f && brew upgrade -y && brew bundle install
 
-FROM installer as package_builder
+FROM brew_installer as package_builder
 
 COPY configs/ /root/dotfiles/configs/
 
