@@ -19,7 +19,7 @@ elif [ "$(uname)" = 'Linux' ]; then
     apt -y upgrade
 
     apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
-      libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl
+      libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh
   fi
 fi
 
@@ -34,21 +34,14 @@ if [ ! "$(command -v brew)" ]; then
   if [ "$(uname)" = "Darwin" ]; then
     echo 'export PATH=$PATH:/opt/homebrew/bin' >>~/.zshrc
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.zshrc
+    source ~/.zshrc
   elif [ "$(uname)" = "Linux" ]; then
     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.bashrc
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    source ~/.bashrc
   fi
 fi
-
-########################################
-# Set zsh as default shell
-########################################
-echo "Check default shell."
-if [ ! "$(command -v zsh)" ]; then
-  brew install zsh
-  chsh -s "$(which zsh)"
-fi
-source ~/.zshrc
 
 ########################################
 # Install common packages
@@ -57,6 +50,7 @@ echo "Install common packages with brew."
 brew update
 brew upgrade
 brew bundle install
+
 source ~/.zshrc
 
 pipx install sqlit-tui
