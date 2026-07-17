@@ -66,7 +66,7 @@ return {
         providers = {
           copilot = {
             name = "copilot",
-            module = "blink-cmp-copilot",
+            module = "blink-copilot",
             kind = "Copilot",
             score_offset = 100,
             async = true,
