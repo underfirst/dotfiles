@@ -1,7 +1,4 @@
 tap "homebrew/bundle"
-tap "k1low/tap"
-tap "teamookla/speedtest"
-tap "yammerjp/tap"
 
 # dev packages
 brew "act"
@@ -24,6 +21,11 @@ brew "readline"
 brew "xz"
 brew "pipx"
 brew "ifstat"
+brew "tree-sitter"
+brew "tree-sitter-cli"
+brew "lua"
+brew "luajit"
+brew "luarocks"
 
 
 # utils
@@ -40,8 +42,6 @@ brew "ranger"
 brew "fx"
 brew "jo"
 brew "jq"
-tap "joerdav/xc"
-brew "xc"
 brew "pueue"
 brew "gaze"
 brew "tmux-xpanes"
@@ -108,6 +108,7 @@ if OS.mac?
   brew "watch"
   brew "1password-cli"
   brew "postgresql@14"
+  tap "yammerjp/tap"
   brew "yammerjp/tap/pdef"
   brew "translate-shell"
   brew "ddgr"
