@@ -6,9 +6,12 @@ WORKDIR /root
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="Asia/Tokyo"
 
-RUN apt update -y && \
-  ln -fs /usr/share/zoneinfo/$TZ/ /etc/localtime && \
-  dpkg-reconfigure --frontend noninteractive tzdata
+RUN apt-get update && \
+  DEBIAN_FRONTEND=noninteractive TZ=Asia/Tokyo apt-get install -y tzdata && \
+  ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+  dpkg-reconfigure --frontend noninteractive tzdata && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 
 RUN apt -y upgrade && \
   apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
