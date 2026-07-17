@@ -2,6 +2,7 @@ FROM ubuntu:22.04 as installer
 
 COPY Brewfile /root/dotfiles
 WORKDIR /root
+SHELL [ "/bin/bash", "-c" ]
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="Asia/Tokyo"
