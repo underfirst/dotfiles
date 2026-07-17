@@ -2,7 +2,7 @@ return {
   {
     "saghen/blink.cmp",
     version = not vim.g.lazyvim_blink_main and "*",
-    build = vim.g.lazyvim_blink_main and "cargo build --release",
+    build = vim.g.lazyvim_blink_main and "require('blink.cmp').build():pwait()",
     opts_extend = {
       "sources.completion.enabled_providers",
       "sources.compat",
@@ -10,6 +10,7 @@ return {
     },
     dependencies = {
       "rafamadriz/friendly-snippets",
+      "saghen/blink.lib",
       -- add blink.compat to dependencies
       {
         "saghen/blink.compat",
