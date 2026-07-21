@@ -31,14 +31,13 @@ RUN curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.s
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && \
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >>~/.bashrc && \
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)" && \
-  brew update -f && brew upgrade -y && brew bundle install
+  brew update -f && brew upgrade -y && brew bundle install --jobs 4 --force || true
 
 FROM brew_installer as package_builder
 
 COPY configs/ /root/dotfiles/configs/
 
-RUN ~/.config/
-
+ENV PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
 RUN cd ~ && \
   git clone https://github.com/dim-an/cod.git && \
   cd cod && \
@@ -66,8 +65,8 @@ FROM tmux_builder as nvim_builder
 
 COPY nvim/ /root/dotfiles/nvim/
 RUN ln -s ~/dotfiles/nvim ~/.config/nvim
-RUN nvim --headless "+Lazy! sync" + qa && \
-  nvim --headless "+TSUpdateSync" +qa & \
+RUN nvim --headless "+Lazy! sync" +qa && \
+  nvim --headless "+TSUpdateSync" +qa && \
   nvim --headless "+MasonInstall lua-language-server rust-analyser pyright" +qa && \
   nvim --headless "+MasonUpdate" +qa
 
@@ -76,3 +75,6 @@ FROM nvim_builder
 COPY .zshrc /root/dotfiles/.zshrc
 RUN echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
 
+RUN zsh -ic "zinit update --all"
+
+#TODO: zinitのsetup. あとnvimでtree-sitter系の何かやらblink系の何か
