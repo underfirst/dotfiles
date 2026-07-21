@@ -64,7 +64,7 @@ zstyle ':completion:*:cd:*' ignore-parents parent pwd
 zstyle ':completion:*:descriptions' format '%BCompleting%b %U%d%u'
 setopt auto_pushd           # cd 時に自動で push
 setopt pushd_ignore_dups    # 同じディレクトリを pushd しない
-setopt aut_cd              # ディレクトリ名だけで cd
+setopt auto_cd              # ディレクトリ名だけで cd
 
 ####################
 # Completion related
