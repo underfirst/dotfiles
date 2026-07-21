@@ -75,4 +75,6 @@ FROM nvim_builder
 COPY .zshrc /root/dotfiles/.zshrc
 RUN echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
 
+RUN zsh -ic "zinit update --all"
+
 #TODO: zinitのsetup. あとnvimでtree-sitter系の何かやらblink系の何か
