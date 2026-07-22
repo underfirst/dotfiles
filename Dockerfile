@@ -15,8 +15,7 @@ RUN apt-get update && \
 
 RUN apt update && apt -y upgrade && \
   apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
-  libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh
-
+  libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh unzip gcc g++ make cmake 
 
 FROM installer as brew_installer
 # Set up brew
@@ -31,13 +30,11 @@ RUN curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.s
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && \
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >>~/.bashrc && \
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)" && \
-  brew update -f && brew upgrade -y && brew bundle install
+  brew update -f && brew upgrade -y && brew unlink  util-linux && brew bundle install --force --jobs 4
 
 FROM brew_installer as package_builder
 
 COPY configs/ /root/dotfiles/configs/
-
-RUN ~/.config/
 
 RUN cd ~ && \
   git clone https://github.com/dim-an/cod.git && \
@@ -76,3 +73,4 @@ FROM nvim_builder
 COPY .zshrc /root/dotfiles/.zshrc
 RUN echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
 
+WORKDIR /app
