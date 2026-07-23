@@ -39,7 +39,8 @@ FROM brew_installer as package_builder
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 COPY configs/ /root/dotfiles/configs/
 
-RUN source ~/.bashrc && cd ~ && \
+ENV PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
+RUN cd ~ && \
   git clone https://github.com/dim-an/cod.git && \
   cd cod && \
   go build
