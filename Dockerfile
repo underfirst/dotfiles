@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 as installer
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 as installer
 
 SHELL [ "/bin/bash", "-c" ]
 WORKDIR /root/dotfiles
@@ -15,7 +15,7 @@ RUN apt-get update && \
 
 RUN apt update && apt -y upgrade && \
   apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
-  libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh unzip gcc g++ make cmake 
+  libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh unzip gcc g++ make
 
 FROM installer as brew_installer
 # Set up brew
@@ -30,18 +30,19 @@ RUN curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.s
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && \
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >>~/.bashrc && \
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)" && \
-  brew update -f && brew upgrade -y && brew unlink  util-linux && brew bundle install --force --jobs 4
+  brew update -f && brew upgrade -y && brew bundle install --force --jobs 4
 
 FROM brew_installer as package_builder
 
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 COPY configs/ /root/dotfiles/configs/
 
-RUN cd ~ && \
+RUN source ~/.bashrc && cd ~ && \
   git clone https://github.com/dim-an/cod.git && \
   cd cod && \
   go build
 
-RUN pipx install sqlit-tui
+RUN source ~/.bashrc && pipx install sqlit-tui
 
 # starship
 RUN mkdir -p ~/.config && \
@@ -63,9 +64,9 @@ FROM tmux_builder as nvim_builder
 
 COPY nvim/ /root/dotfiles/nvim/
 RUN ln -s ~/dotfiles/nvim ~/.config/nvim
-RUN nvim --headless "+Lazy! sync" + qa && \
-  nvim --headless "+TSUpdateSync" +qa & \
-  nvim --headless "+MasonInstall lua-language-server rust-analyser pyright" +qa && \
+RUN nvim --headless "+Lazy! sync" +qa && \
+  nvim --headless "+TSUpdate" +qa & \
+  nvim --headless "+MasonInstall lua-language-server pyright clangd cmakelang cmakelint docker-compose-language-service dockerfile-language-server json-lsp markdownlint-cli2 marksman ruff shfmt tree-sitter-cli yaml-language-server" +qa && \
   nvim --headless "+MasonUpdate" +qa
 
 FROM nvim_builder
@@ -73,4 +74,5 @@ FROM nvim_builder
 COPY .zshrc /root/dotfiles/.zshrc
 RUN echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
 
+RUN zsh -ic "exit"
 WORKDIR /app
