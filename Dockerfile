@@ -54,7 +54,12 @@ RUN mkdir -p ~/.config && \
 RUN mkdir -p ~/.config/yazi && \
   git clone https://github.com/sxyazi/yazi.git ~/.config/yazi/yazi && \
   git clone https://github.com/yazi-rs/flavors.git ~/.config/yazi/flavors && \
-  ln -s ~/dotfiles/configs/yazi ~/.config/yazi && \
+  ln -s ~/dotfiles/configs/yazi/flavors/ ~/.config/yazi/flavors/ && \
+  ln -s /root/dotfiles/configs/yazi/init.lua ~/.config/yazi/init.lua && \
+  ln -s /root/dotfiles/configs/yazi/keymap.toml ~/.config/yazi/keymap.toml && \
+  ln -s /root/dotfiles/configs/yazi/package.toml ~/.config/yazi/package.toml && \
+  ln -s /root/dotfiles/configs/yazi/theme.toml ~/.config/yazi/theme.toml && \
+  ln -s /root/dotfiles/configs/yazi/yazi.toml ~/.config/yazi/yazi.toml && \
   ya pkg install
 
 FROM package_builder as tmux_builder
