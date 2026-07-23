@@ -67,6 +67,14 @@ if [ ! -e ~/.config/starship.toml ]; then
   mkdir -p ~/.config
   cp ~/dotfiles/configs/starship.toml ~/.config/starship.toml
 fi
+
+# Install yazi
+git clone https://github.com/sxyazi/yazi.git ~/.config/yazi/yazi
+git clone https://github.com/yazi-rs/flavors.git ~/.config/yazi/flavors
+mkdir -p ~/.config/yazi
+ln -s ~/dotfiles/configs/yazi/ ~/.config/yazi/
+ya pkg install
+
 # Install tmux plugin manager
 if [ ! -e ~/.tmux/plugins/tpm ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -76,7 +84,7 @@ fi
 # nvim headless setup
 nvim --headless "+Lazy! sync" + qa
 nvim --headless "+TSUpdateSync" +qa
-nvim --headless "+MasonInstall lua-language-server rust-analyser pyright" +qa
+nvim --headless "+MasonInstall lua-language-server pyright" +qa
 nvim --headless "+MasonUpdate" +qa
 
 ########################################
@@ -86,9 +94,7 @@ echo "Link dotfiles."
 ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
 ln -s ~/dotfiles/.vimrc ~/.vimrc
 ln -s ~/dotfiles/vim ~/.vim
-mkdir -p ~/.config/yazi
-ln -s ~/dotfiles/configs/yazi/yazi.toml ~/.config/yazi/yazi.toml
-ln -s ~/dotfiles/configs/yazi/theme.toml ~/.config/yazi/theme.toml
+
 mkdir -p ~/.config
 ln -s ~/dotfiles/nvim ~/.config/nvim
 echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
