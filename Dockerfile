@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 as installer
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 as installer
 
 SHELL [ "/bin/bash", "-c" ]
 WORKDIR /root/dotfiles
@@ -6,6 +6,7 @@ WORKDIR /root/dotfiles
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="Asia/Tokyo"
 
+RUN chmod 1777 /tmp
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive TZ=Asia/Tokyo apt-get install -y tzdata && \
   ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
@@ -14,9 +15,9 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 RUN apt update && apt -y upgrade && \
-  apt install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
-  libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh
-
+  apt install -y build-essential gcc g++ make cmake libffi-dev libssl-dev zlib1g-dev liblzma-dev libbz2-dev \
+  libreadline-dev libsqlite3-dev libopencv-dev tk-dev libz-dev git curl zsh unzip \
+  ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick
 
 FROM installer as brew_installer
 # Set up brew
@@ -31,10 +32,11 @@ RUN curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.s
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.zshrc && \
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >>~/.bashrc && \
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)" && \
-  brew update -f && brew upgrade -y && brew bundle install --jobs 4 --force || true
+  brew update -f && brew upgrade -y && brew bundle install --force --jobs 4
 
 FROM brew_installer as package_builder
 
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 COPY configs/ /root/dotfiles/configs/
 
 ENV PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
@@ -50,8 +52,10 @@ RUN mkdir -p ~/.config && \
   cp ~/dotfiles/configs/starship.toml ~/.config/starship.toml
 
 RUN mkdir -p ~/.config/yazi && \
-  ln -s ~/dotfiles/configs/yazi/yazi.toml ~/.config/yazi/yazi.toml && \
-  ln -s ~/dotfiles/configs/yazi/theme.toml ~/.config/yazi/theme.toml
+  git clone https://github.com/sxyazi/yazi.git ~/.config/yazi/yazi && \
+  git clone https://github.com/yazi-rs/flavors.git ~/.config/yazi/flavors && \
+  ln -s ~/dotfiles/configs/yazi ~/.config/yazi && \
+  ya pkg install
 
 FROM package_builder as tmux_builder
 
@@ -66,8 +70,8 @@ FROM tmux_builder as nvim_builder
 COPY nvim/ /root/dotfiles/nvim/
 RUN ln -s ~/dotfiles/nvim ~/.config/nvim
 RUN nvim --headless "+Lazy! sync" +qa && \
-  nvim --headless "+TSUpdateSync" +qa && \
-  nvim --headless "+MasonInstall lua-language-server rust-analyser pyright" +qa && \
+  nvim --headless "+TSUpdate" +qa & \
+  nvim --headless "+MasonInstall lua-language-server pyright clangd cmakelang cmakelint docker-compose-language-service dockerfile-language-server json-lsp markdownlint-cli2 marksman ruff shfmt tree-sitter-cli yaml-language-server" +qa && \
   nvim --headless "+MasonUpdate" +qa
 
 FROM nvim_builder
@@ -75,6 +79,5 @@ FROM nvim_builder
 COPY .zshrc /root/dotfiles/.zshrc
 RUN echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
 
-RUN zsh -ic "zinit update --all"
-
-#TODO: zinitのsetup. あとnvimでtree-sitter系の何かやらblink系の何か
+RUN zsh -ic "exit"
+WORKDIR /app

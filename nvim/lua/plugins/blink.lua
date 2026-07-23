@@ -19,18 +19,18 @@ return {
         version = not vim.g.lazyvim_blink_main and "*",
       },
     },
-    event = "InsertEnter",
+    event = "insertenter",
 
     ---@module 'blink.cmp'
-    ---@type blink.cmp.Config
+    ---@type blink.cmp.config
     opts = {
       snippets = {
         expand = function(snippet, _)
-          return LazyVim.cmp.expand(snippet)
+          return lazyvim.cmp.expand(snippet)
         end,
       },
       appearance = {
-        -- set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+        -- set to 'mono' for 'nerd font mono' or 'normal' for 'nerd font'
         -- adjusts spacing to ensure icons are aligned
         nerd_font_variant = "mono",
       },
@@ -67,7 +67,7 @@ return {
           copilot = {
             name = "copilot",
             module = "blink-copilot",
-            kind = "Copilot",
+            kind = "copilot",
             score_offset = 100,
             async = true,
           },
@@ -80,7 +80,6 @@ return {
 
       keymap = {
         preset = "super-tab",
-        ["<C-y>"] = { "select_and_accept" },
       },
     },
     ---@param opts blink.cmp.Config | { sources: { compat: string[] } }
