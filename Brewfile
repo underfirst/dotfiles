@@ -96,6 +96,7 @@ brew "sevenzip"
 brew "resvg"
 brew "rust"
 brew "starship"
+brew "ec"
 cask "font-hack-nerd-font"
 
 

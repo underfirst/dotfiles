@@ -161,11 +161,7 @@ alias hc='cat ~/.zsh_history | fzf | pbcopy'    # fzf history and copy it
 
 alias fps="ps aux | fzf | awk '{print $2}'"
 
-alias ghrc="gh repo create"
-alias gpom="git pull origin main"
-#alias frepo="ghq list | fzf | xargs -I{} cd $(ghq root)/{}"
 alias proot='cd $(git rev-parse --show-toplevel)'
-alias cghq='cd $(ghq root)';
 
 alias ei="eza --icons --git"
 alias ea="eza -la --icons --git"
