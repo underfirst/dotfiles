@@ -73,6 +73,12 @@ git clone https://github.com/sxyazi/yazi.git ~/.config/yazi/yazi
 git clone https://github.com/yazi-rs/flavors.git ~/.config/yazi/flavors
 mkdir -p ~/.config/yazi
 ln -s ~/dotfiles/configs/yazi/ ~/.config/yazi/
+ln -s ~/dotfiles/configs/yazi/flavors/ ~/.config/yazi/flavors/
+ln -s /root/dotfiles/configs/yazi/init.lua ~/.config/yazi/init.lua
+ln -s /root/dotfiles/configs/yazi/keymap.toml ~/.config/yazi/keymap.toml
+ln -s /root/dotfiles/configs/yazi/package.toml ~/.config/yazi/package.toml
+ln -s /root/dotfiles/configs/yazi/theme.toml ~/.config/yazi/theme.toml
+ln -s /root/dotfiles/configs/yazi/yazi.toml ~/.config/yazi/yazi.toml
 ya pkg install
 
 # Install tmux plugin manager
@@ -90,9 +96,9 @@ git config --global rebase.autoStash true
 git config --global core.editor "nvim"
 
 # nvim headless setup
-nvim --headless "+Lazy! sync" + qa
-nvim --headless "+TSUpdateSync" +qa
-nvim --headless "+MasonInstall lua-language-server pyright" +qa
+nvim --headless "+Lazy! sync" +qa
+nvim --headless "+TSUpdate" +qa
+nvim --headless "+MasonInstall lua-language-server pyright clangd cmakelang cmakelint docker-compose-language-service dockerfile-language-server json-lsp markdownlint-cli2 marksman ruff shfmt tree-sitter-cli yaml-language-server" +qa
 nvim --headless "+MasonUpdate" +qa
 
 ########################################
