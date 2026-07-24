@@ -61,3 +61,6 @@ vim.keymap.set("n", "r", ":red<CR>", { noremap = true, silent = true })
 -- accelerated jk
 vim.api.nvim_set_keymap("n", "j", "<Plug>(accelerated_jk_gj)", {})
 vim.api.nvim_set_keymap("n", "k", "<Plug>(accelerated_jk_gk)", {})
+
+-- inc-rename
+vim.keymap.set("n", "<leader>rn", ":IncRename ", { noremap = true, silent = false, desc = "Incremental rename" })
