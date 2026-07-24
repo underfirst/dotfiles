@@ -81,6 +81,14 @@ if [ ! -e ~/.tmux/plugins/tpm ]; then
   ~/.tmux/plugins/tpm/bin/install_plugins
 fi
 
+# git configs
+git config --global merge.tool ec
+git config --global pull.rebase true
+git config --global rerere.enabled true
+git config --global fetch.prune true
+git config --global rebase.autoStash true
+git config --global core.editor "nvim"
+
 # nvim headless setup
 nvim --headless "+Lazy! sync" + qa
 nvim --headless "+TSUpdateSync" +qa

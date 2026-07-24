@@ -83,6 +83,12 @@ FROM nvim_builder
 
 COPY .zshrc /root/dotfiles/.zshrc
 RUN echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
+RUN git config --global merge.tool ec && \
+  git config --global pull.rebase true && \
+  git config --global rerere.enabled true && \
+  git config --global fetch.prune true && \
+  git config --global rebase.autoStash true && \
+  git config --global core.editor "nvim"
 
 RUN zsh -ic "exit"
 WORKDIR /app
