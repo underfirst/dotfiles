@@ -140,7 +140,6 @@ alias k=kill
 alias l='ls -alh'
 alias m='mkdir -p'
 alias py='python'
-alias o="open"
 alias q=exit
 alias t=tmux
 alias vi=nvim
@@ -156,8 +155,25 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
-alias hx='eval "$(cat ~/.zsh_history | fzf)"'   # fzf history and execute it.
-alias hc='cat ~/.zsh_history | fzf | pbcopy'    # fzf history and copy it
+# Platform-specific alias for history operations
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # Linux / WSL2
+  if grep -qi microsoft /proc/version 2>/dev/null; then
+    # WSL2 - use Windows clipboard
+    alias hx='eval "$(cat ~/.zsh_history | fzf)"'
+    alias hc='cat ~/.zsh_history | fzf | clip.exe'
+  else
+    # Pure Linux
+    if command -v xclip &> /dev/null; then
+      alias hx='eval "$(cat ~/.zsh_history | fzf)"'
+      alias hc='cat ~/.zsh_history | fzf | xclip -i -selection clipboard'
+    fi
+  fi
+else
+  # macOS
+  alias hx='eval "$(cat ~/.zsh_history | fzf)"'
+  alias hc='cat ~/.zsh_history | fzf | pbcopy'
+fi
 
 alias fps="ps aux | fzf | awk '{print $2}'"
 
@@ -401,10 +417,46 @@ alerm() {
     return 1
   fi
 
-  sleep $((60 * m)) && for i in $(seq 1 5); do
-    say "${m}分たちました"
-    sleep 1
-  done
+  sleep $((60 * m))
+  
+  # Platform-specific notification
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    for i in $(seq 1 5); do
+      say "${m}分たちました"
+      sleep 1
+    done
+  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux / WSL2
+    if grep -qi microsoft /proc/version 2>/dev/null; then
+      # WSL2 - use Windows notification
+      for i in $(seq 1 5); do
+        echo "${m}分たちました"
+        sleep 1
+      done
+    else
+      # Pure Linux - try spd-say or notify-send
+      if command -v spd-say &> /dev/null; then
+        for i in $(seq 1 5); do
+          spd-say "${m}分たちました"
+          sleep 1
+        done
+      elif command -v notify-send &> /dev/null; then
+        notify-send -u critical "Timer" "${m}分たちました"
+      else
+        for i in $(seq 1 5); do
+          echo "${m}分たちました"
+          sleep 1
+        done
+      fi
+    fi
+  else
+    # Fallback for Windows native or other systems
+    for i in $(seq 1 5); do
+      echo "${m}分たちました"
+      sleep 1
+    done
+  fi
 }
 
 ##############################

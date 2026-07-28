@@ -112,3 +112,5 @@ ln -s ~/dotfiles/vim ~/.vim
 mkdir -p ~/.config
 ln -s ~/dotfiles/nvim ~/.config/nvim
 echo 'source ~/dotfiles/.zshrc' >>~/.zshrc
+
+ln -s ~/.dotfiles/configs/wezterm/wezterm.lua ~/.config/wezterm/wezterm.lua
