@@ -17,12 +17,12 @@ $character"""
 [hostname]
 ssh_only = false
 format = "[[ $hostname](fg:#a0a9cb bg:#a3aed2)]($style)"
-style = "bg:#769ff0"
+style = "fg:#0b1220 bg:#769ff0"
 
 [time]
 disabled = false
 time_format = "%T"
-style = "bg:#769ff0"
+style = "fg:#0b1220 bg:#769ff0"
 format = '[[ $time ](fg:#a0a9cb bg:#a3aed2 )]($style)'
 
 [directory]
