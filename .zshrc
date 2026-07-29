@@ -383,6 +383,71 @@ see() {
   done
 }
 
+vide() {
+  GRID=$(($(tput lines) / 12))
+
+  D_GRID=$(($GRID * 2))
+  T_GRID=$(($GRID * 3))
+  Q_GRID=$(($GRID * 4))
+  MAIN_GRID=$(($(tput lines) - $T_GRID - 1))
+
+  # ---- pyscn を除去 ----
+  tmux send-key "uv add --dev fabric ruff rich ipython pytest" C-m
+
+  tmux set pane-border-lines double
+  tmux set pane-border-style "fg=color239"
+  tmux set pane-active-border-style "fg=color242"
+
+  tmux split-window -h
+  tmux resize-pane -x 64
+
+  tmux split-window -v
+  tmux select-pane -U
+  tmux resize-pane -y $GRID
+
+  # fab sync
+  tmux send-key 'gaze -c "uv run fab sync" "src/**/*.py"' C-m
+  tmux select-pane -D
+
+  # ---- jupyter 判定 ----
+  HAS_JUPYTER=$(uv pip list 2>/dev/null | awk '{print $1}' | grep -i '^jupyter$')
+
+  if [ -n "$HAS_JUPYTER" ]; then
+    tmux split-window -v
+    tmux select-pane -U
+    tmux resize-pane -y $GRID # 1/12
+    tmux send-key 'uv run jupyter notebook' C-m
+    tmux select-pane -D
+  fi
+
+  # fab lint pane (4/12)
+  tmux split-window -v
+  tmux select-pane -U
+  tmux resize-pane -y $Q_GRID
+  tmux send-key 'gaze -c "uv run fab lint" "src/**/*.py"' C-m
+  tmux select-pane -D
+
+  # ---- pyscn 用だった pane（7/12）を空で確保 ----
+  tmux split-window -v
+  tmux select-pane -U
+  tmux resize-pane -y $Q_GRID
+  tmux send-key 'clear' C-m # 何も実行しないが pane は維持
+  tmux select-pane -D
+
+  # ipython (10/12)
+  tmux resize-pane -y $T_GRID
+  tmux send-key 'uv run ipython' C-m
+
+  tmux select-pane -L
+  tmux split-window -v
+  tmux select-pane -D
+  tmux resize-pane -y $MAIN_GRID
+  tmux select-pane -U
+  tmux send-key copilot -C-m
+  # tmux send-key 'uv tool run aider --model "gpt-4.1" --dark-mode --code-theme dracula --watch-files' C-m
+
+  tmux select-pane -U
+}
 
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
