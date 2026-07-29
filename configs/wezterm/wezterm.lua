@@ -14,7 +14,8 @@ config.font_size = 10.0
 
 -- Background settings
 config.window_background_opacity = 0.9
-
+config.macos_window_background_blur = 20
+config.win32_system_backdrop = "Acrylic"
 -- Display settings
 config.enable_wayland = false
 config.enable_tab_bar = false
@@ -30,10 +31,9 @@ config.window_padding = {
 -- Shell integration
 if wezterm.target_triple:find("windows") then
 	config.default_prog = {
-		"pwsh.exe",
-		"-NoExit",
-		"-Command",
-		"Import-Module posh-git; Import-Module oh-my-posh; oh-my-posh init pwsh | Out-String | Invoke-Expression",
+		"wsl",
+		"-d",
+		"ubuntu",
 	}
 else
 	config.default_prog = { "zsh", "-l" }
