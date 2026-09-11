@@ -1,0 +1,3 @@
+# Load platform-specific mise configuration automatically.
+auto_env = true
+env_conf_d = true

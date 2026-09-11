@@ -4,13 +4,13 @@
 export LANG=ja_JP.UTF-8
 export LC_ALL=ja_JP.UTF-8
 
-export PATH=/usr/local/bin:$PATH
-export PATH=/usr/local/Homebrew/bin:${PATH}
-export PATH=${HOME}/cod:${PATH}
-export PATH=${PATH}:/opt/homebrew/opt/mysql-client/bin
-export PATH=${PATH}:$HOME/.nodebrew/current/bin
+export PATH=$HOME/cod:$PATH
 export PS1="%F{blue}%~ %f%b%#" 
-if [ $(command -v nvim) ]; then
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
+if command -v nvim >/dev/null 2>&1; then
   export EDITOR=nvim
 fi
 
@@ -131,62 +131,6 @@ zinit light gko/ssh-connect
 
 
 
-##############################
-# Alias definitions
-##############################
-alias c=clear
-alias f='find . -name'
-alias k=kill
-alias l='ls -alh'
-alias m='mkdir -p'
-alias py='python'
-alias q=exit
-alias t=tmux
-alias vi=nvim
-alias p=pueue
-
-alias gg=lazygit
-alias imcat="timg -pk --title -W"
-
-alias ipy=ipython
-alias jp='jupyter notebook'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
-
-# Platform-specific alias for history operations
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  # Linux / WSL2
-  if grep -qi microsoft /proc/version 2>/dev/null; then
-    # WSL2 - use Windows clipboard
-    alias hx='eval "$(cat ~/.zsh_history | fzf)"'
-    alias hc='cat ~/.zsh_history | fzf | clip.exe'
-  else
-    # Pure Linux
-    if command -v xclip &> /dev/null; then
-      alias hx='eval "$(cat ~/.zsh_history | fzf)"'
-      alias hc='cat ~/.zsh_history | fzf | xclip -i -selection clipboard'
-    fi
-  fi
-else
-  # macOS
-  alias hx='eval "$(cat ~/.zsh_history | fzf)"'
-  alias hc='cat ~/.zsh_history | fzf | pbcopy'
-fi
-
-alias fps="ps aux | fzf | awk '{print $2}'"
-
-alias proot='cd $(git rev-parse --show-toplevel)'
-
-alias ei="eza --icons --git"
-alias ea="eza -la --icons --git"
-alias ee="eza -aahl --icons --git"
-alias ls=ei
-alias la=ea
-alias ll=ee
-
-alias gd='cd $(ghq list --full-path | fzf)'
 
 ##############################
 # Function definitions
