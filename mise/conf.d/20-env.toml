@@ -1,0 +1,6 @@
+[env]
+EDITOR = "nvim"
+LANG = "ja_JP.UTF-8"
+LC_ALL = "ja_JP.UTF-8"
+
+_.path = ["~/cod", "~/.local/bin"]

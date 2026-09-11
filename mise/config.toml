@@ -1,0 +1,10 @@
+[settings]
+auto_install = false
+
+[tasks.setup]
+description = "Install packages and apply the common dotfiles setup"
+run = "bash {{config_root}}/scripts/setup/bootstrap.sh"
+
+[tasks.setup-docker]
+description = "Install the Docker development environment"
+run = "bash {{config_root}}/scripts/setup/bootstrap.sh"
