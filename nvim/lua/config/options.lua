@@ -9,7 +9,7 @@ vim.opt.listchars = { tab = "  ", trail = "·", extends = "»", precedes = "«",
 vim.opt.list = true
 
 -- default line wrapping
-vim.opt.wrap = true
+vim.opt.wrap = false
 
 vim.opt.termguicolors = true
 vim.opt.winblend = 0 -- ウィンドウの不透明度
