@@ -48,7 +48,7 @@
 - `models/`: Pydantic model など, 複数箇所で共有するデータモデル.
 - `utils/`: 複数 feature から利用する小さな汎用関数.
 
-機能が複雑になった場合は, `features/<feature_name>/controllers/<controller_name>.py` のようにディレクトリを分割する. 
+機能が複雑になった場合は, `features/<feature_name>/controllers/<controller_name>.py` のようにディレクトリを分割する.
 小規模な場合は `controllers.py` などの単一ファイルでよい.
 
 feature 固有の処理を別 feature から直接 import してはならない.
@@ -56,7 +56,7 @@ feature 固有の処理を別 feature から直接 import してはならない.
 
 ### `tests/<package_name>`
 
-`src` と同じ相対構造を保つ. 
+`src` と同じ相対構造を保つ.
 `src/<package_name>/<path>/<module>.py` に対して, `tests/<package_name>/<path>/test_<module>.py` を作成する.
 
 ```text
@@ -71,7 +71,7 @@ tests/<package_name>/features/search/controllers/test_search_controller.py
 
 ### 型ヒント
 
-すべての関数とメソッドの引数, 返り値に型ヒントを付ける. 
+すべての関数とメソッドの引数, 返り値に型ヒントを付ける.
 Python 3.11 以降の組み込みジェネリックと union 構文を使い, 古い `typing.List`, `typing.Dict`, `typing.Optional` は使わない.
 
 ```python
@@ -81,13 +81,13 @@ def collect_names(values: list[str], prefix: str | None = None) -> list[str]:
 
 ### import
 
-import はファイル先頭にまとめ, 標準ライブラリ, 外部ライブラリ, 自プロジェクトの順に並べる. 
-import を関数内に置かない. 
+import はファイル先頭にまとめ, 標準ライブラリ, 外部ライブラリ, 自プロジェクトの順に並べる.
+import を関数内に置かない.
 ただし, 循環 import を避けるための明確な理由がある場合は, その理由をコメントまたは設計で説明する.
 
 ### docstring
 
-関数, メソッド, クラス, モジュールには必要な docstring を付ける. 
+関数, メソッド, クラス, モジュールには必要な docstring を付ける.
 関数とメソッドの docstring は Google docstring style とし, 日本語で記述する.
 
 - 文体はだである調とする.
@@ -127,7 +127,7 @@ def search(url: str, save_path: str) -> None:
     SearchController().run(url, save_path)
 ```
 
-外部 API の response は controller の境界で検証し, 内部では型の明確な値として扱う. 
+外部 API の response は controller の境界で検証し, 内部では型の明確な値として扱う.
 機密情報はソースコードへ直書きせず, `.env` と dotenv などを利用する.
 
 ### 定数と環境変数
@@ -198,12 +198,12 @@ def process() -> None:
 
 ## テスト規約
 
-テストフレームワークには pytest を使う. 
+テストフレームワークには pytest を使う.
 テストはクラスでまとめず, すべて関数として実装する.
 
 ### テスト名
 
-関数の正常系は `test_<function_name>` とする. 
+関数の正常系は `test_<function_name>` とする.
 クラスのメソッドは `test_<ClassName>_<method_name>` とする.
 
 ```python
@@ -215,14 +215,14 @@ def test_SearchController_run() -> None:
     ...
 ```
 
-クラス名を含むテスト名は Python の通常の snake_case 規約と異なるが, 対象メソッドとの対応を明確にするためこの規約を優先する. 
-プロダクションコードでは `N802` を守り, tests 配下では Ruff の per-file ignore で `N802` を許可する. 
+クラス名を含むテスト名は Python の通常の snake_case 規約と異なるが, 対象メソッドとの対応を明確にするためこの規約を優先する.
+プロダクションコードでは `N802` を守り, tests 配下では Ruff の per-file ignore で `N802` を許可する.
 テスト関数以外で `N802` を許可してはならない.
 
 ### 正常系を優先したテスト対象
 
-各公開関数と controller の公開メソッドについて, 少なくとも正常系を実装する. 
-private メソッドは直接テストしない. 
+各公開関数と controller の公開メソッドについて, 少なくとも正常系を実装する.
+private メソッドは直接テストしない.
 private の複雑な処理がテスト対象として必要になった場合は, 公開 API 経由で検証するか, 独立した公開関数として設計を見直す.
 
 - 入力変換関数: 代表的な入力と変換結果を検証する.
@@ -231,7 +231,7 @@ private の複雑な処理がテスト対象として必要になった場合は
 - controller: 外部境界を差し替え, controller 自身の処理結果を検証する.
 - CLI: controller が適切な引数で呼び出されることを検証する.
 
-「正常系を優先する」とは正常系だけに限定するという意味ではない. 
+「正常系を優先する」とは正常系だけに限定するという意味ではない.
 外部 API, ファイル, LLM などの境界では, 失敗時の挙動に意味がある場合に代表的な異常系も追加する.
 
 - HTTP エラーや不正なレスポンス.
@@ -261,7 +261,7 @@ uv run ruff check --fix
 git diff --check
 ```
 
-実装後は少なくとも pytest と Ruff を実行する. 
+実装後は少なくとも pytest と Ruff を実行する.
 lint の自動修正で意図しないファイルが変更されていないか, `git diff` と `git status` で確認する.
 
 ## 変更時の確認事項
@@ -274,4 +274,3 @@ lint の自動修正で意図しないファイルが変更されていないか
 - 必要なデータを `data/samples/` に追加したか.
 - 外部 API や LLM に接続するテストになっていないか.
 - `uv run pytest -q`, `uv run ruff check --fix`, `git diff --check` が通るか.
-
