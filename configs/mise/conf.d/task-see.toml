@@ -1,0 +1,36 @@
+[tasks.see]
+description = "ファイルを種類に応じたCLIで表示する"
+interactive = true
+dir = "{{cwd}}"
+run = '''
+#!/usr/bin/env zsh
+setopt local_options
+cd "${MISE_ORIGINAL_CWD:-$PWD}"
+
+if [ "$#" -eq 0 ]; then
+  selected=$(ls -1A | fzf --prompt="see> ")
+  [ -n "$selected" ] && set -- "$selected"
+fi
+
+for file in "$@"; do
+  [ -e "$file" ] || { print -u2 "see: $file not found"; continue; }
+  if [ -d "$file" ]; then
+    ls -alh --total-size "$file"
+    continue
+  fi
+
+  ext=$(printf '%s\n' "$file" | tr '[:upper:]' '[:lower:]')
+  case "$ext" in
+    *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.webp|*.tiff|*.tif)
+      timg -pk "$file" ;;
+    *.pdf|*.doc|*.docx|*.ppt|*.pptx)
+      open "$file" ;;
+    *.tsv|*.csv|*.xls|*.xlsx)
+      tw "$file" ;;
+    *.json)
+      fx "$file" ;;
+    *)
+      bat "$file" ;;
+  esac
+done
+'''

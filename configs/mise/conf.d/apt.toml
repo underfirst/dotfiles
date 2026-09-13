@@ -1,0 +1,4 @@
+[bootstrap.packages]
+"apt:build-essential" = "latest"
+"apt:libffi-dev" = "latest"
+"apt:libssl-dev" = "latest"

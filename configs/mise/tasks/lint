@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="src/ に Ruff の修正付き lint を実行する"
+#MISE raw=true
+exec python3 "$MISE_TASK_DIR/../scripts/python_project_tasks.py" lint "$@"

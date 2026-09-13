@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Alembic の revision 作成と upgrade を実行する"
+#MISE raw=true
+#USAGE arg "<message>" help="migration message"
+exec python3 "$MISE_TASK_DIR/../scripts/python_project_tasks.py" migrate "$usage_message"

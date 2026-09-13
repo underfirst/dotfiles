@@ -1,0 +1,58 @@
+[tasks.vide]
+description = "開発用tmuxペインを作成する"
+interactive = true
+dir = "{{cwd}}"
+run = '''
+#!/usr/bin/env zsh
+cd "${MISE_ORIGINAL_CWD:-$PWD}"
+grid=$(($(tput lines) / 12))
+d_grid=$((grid * 2))
+t_grid=$((grid * 3))
+q_grid=$((grid * 4))
+main_grid=$(($(tput lines) - t_grid - 1))
+
+tmux send-key "uv add --dev fabric ruff rich ipython pytest" C-m
+tmux set pane-border-lines double
+tmux set pane-border-style "fg=color239"
+tmux set pane-active-border-style "fg=color242"
+
+tmux split-window -h
+tmux resize-pane -x 64
+tmux split-window -v
+tmux select-pane -U
+tmux resize-pane -y "$grid"
+
+  tmux send-key 'mise run watch-sync' C-m
+tmux select-pane -D
+
+has_jupyter=$(uv pip list 2>/dev/null | awk '{print $1}' | grep -i '^jupyter$')
+if [ -n "$has_jupyter" ]; then
+  tmux split-window -v
+  tmux select-pane -U
+  tmux resize-pane -y "$grid"
+  tmux send-key 'uv run jupyter notebook' C-m
+  tmux select-pane -D
+fi
+
+tmux split-window -v
+tmux select-pane -U
+tmux resize-pane -y "$q_grid"
+  tmux send-key 'mise run watch-lint' C-m
+tmux select-pane -D
+
+tmux split-window -v
+tmux select-pane -U
+tmux resize-pane -y "$q_grid"
+tmux send-key 'clear' C-m
+tmux select-pane -D
+
+tmux resize-pane -y "$t_grid"
+tmux send-key 'uv run ipython' C-m
+tmux select-pane -L
+tmux split-window -v
+tmux select-pane -D
+tmux resize-pane -y "$main_grid"
+tmux select-pane -U
+tmux send-key copilot C-m
+tmux select-pane -U
+'''

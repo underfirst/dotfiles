@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="uv init --package 済みの Python プロジェクト構造とテンプレートを補完する"
+#MISE raw=true
+#USAGE flag "--package <package>" help="src/ 配下に複数 package がある場合に指定する"
+args=()
+[[ -n "${usage_package:-}" ]] && args+=(--package "$usage_package")
+exec python3 "$MISE_TASK_DIR/../scripts/python_project_tasks.py" init "${args[@]}"

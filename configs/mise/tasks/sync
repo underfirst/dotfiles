@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#MISE description="プロジェクトを SSH または Docker コンテナへ rsync する"
+#MISE raw=true
+#USAGE flag "--dry-run" help="変更予定だけを表示する"
+#USAGE flag "--reverse" help="remote/container から local へ同期する"
+#USAGE flag "--include-data" help="data/ も同期する"
+#USAGE flag "--include-root" help="ルート直下のファイルも同期する"
+args=()
+[[ "${usage_dry_run:-false}" == "true" ]] && args+=(--dry-run)
+[[ "${usage_reverse:-false}" == "true" ]] && args+=(--reverse)
+[[ "${usage_include_data:-false}" == "true" ]] && args+=(--include-data)
+[[ "${usage_include_root:-false}" == "true" ]] && args+=(--include-root)
+exec python3 "$MISE_TASK_DIR/../scripts/python_project_tasks.py" sync "${args[@]}"

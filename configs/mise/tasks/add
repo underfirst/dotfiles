@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="feature モジュールとテストの雛形を追加する"
+#MISE raw=true
+#USAGE arg "<module>" help="追加する Python feature 名"
+#USAGE flag "--package <package>" help="対象 package 名"
+args=("$usage_module")
+[[ -n "${usage_package:-}" ]] && args+=(--package "$usage_package")
+exec python3 "$MISE_TASK_DIR/../scripts/python_project_tasks.py" add "${args[@]}"

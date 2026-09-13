@@ -38,6 +38,9 @@ FROM brew_installer as package_builder
 
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 COPY configs/ /root/dotfiles/configs/
+COPY templates/ /root/dotfiles/templates/
+RUN mkdir -p ~/.config && \
+  ln -s /root/dotfiles/configs/mise ~/.config/mise
 
 ENV PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
 RUN cd ~ && \

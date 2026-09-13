@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="src/ の変更時に lint を再実行する"
+#MISE raw=true
+#MISE tools.watchexec="latest"
+exec mise watch lint --watch src --exts py --postpone --on-busy-update=queue

@@ -16,7 +16,7 @@ fi
 
 # eval
 eval "$(starship init zsh)" 
-
+eval "$(mise activate zsh)"
 
 
 ##############################
@@ -134,27 +134,6 @@ zinit light gko/ssh-connect
 ##############################
 # Alias definitions
 ##############################
-alias c=clear
-alias f='find . -name'
-alias k=kill
-alias l='ls -alh'
-alias m='mkdir -p'
-alias py='python'
-alias q=exit
-alias t=tmux
-alias vi=nvim
-alias p=pueue
-
-alias gg=lazygit
-alias imcat="timg -pk --title -W"
-
-alias ipy=ipython
-alias jp='jupyter notebook'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
-
 # Platform-specific alias for history operations
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   # Linux / WSL2
@@ -177,351 +156,46 @@ fi
 
 alias fps="ps aux | fzf | awk '{print $2}'"
 
-alias proot='cd $(git rev-parse --show-toplevel)'
-
-alias ei="eza --icons --git"
-alias ea="eza -la --icons --git"
-alias ee="eza -aahl --icons --git"
-alias ls=ei
-alias la=ea
-alias ll=ee
-
-alias gd='cd $(ghq list --full-path | fzf)'
-
 ##############################
 # Function definitions
 ##############################
 ####################
-# fzf related
-####################
-# tmux kill window with fzf.
-tkw () {
-    local sessions
-    sessions="$(tmux ls| fzf --exit-0 --multi)"  || return $?
-    local i
-    for i in "${(f@)sessions}"
-    do
-        [[ $i =~ '([^:]*):.*' ]] && {
-            echo "Killing $match[1]"
-            tmux kill-session -t "$match[1]"
-        }
-    done
-}
-
-# fzf process id and kill
-fkill() {
-  local pid
-  pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
-  if [ "x$pid" != "x" ]
-  then
-    echo $pid | xargs kill -${1:-9}
-  fi
-}
-
-####################
-# nvim snippet
-####################
-vs() {
-  local session="snippets"
-  local dir="$HOME/Documents/snippets/"
-
-  # セッションが存在するかチェック
-  if ! tmux has-session -t "$session" 2>/dev/null; then
-    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
-    tmux new-session -d -s "$session" -c "$dir" "nvim"
-  fi
-
-  if [ -z "$TMUX" ]; then
-    # tmux外
-    tmux attach -t "$session"
-  else
-    # tmux内
-    tmux switch-client -t "$session"
-  fi
-}
-
-vm() {
-  local session="memo"
-  local dir="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo"
-
-  # セッションが存在するかチェック
-  if ! tmux has-session -t "$session" 2>/dev/null; then
-    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
-    tmux new-session -d -s "$session" -c "$dir";
-    nvim;
-  fi
-
-  if [ -z "$TMUX" ]; then
-    # tmux外
-    tmux attach -t "$session"
-  else
-    # tmux内
-    tmux switch-client -t "$session"
-  fi
-}
-
-vd() {
-  local session="dotfiles"
-  local dir="$HOME/dotfiles/"
-
-  # セッションが存在するかチェック
-  if ! tmux has-session -t "$session" 2>/dev/null; then
-    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
-    tmux new-session -d -s "$session" -c "$dir"
-  fi
-
-  if [ -z "$TMUX" ]; then
-    # tmux外
-    tmux attach -t "$session"
-  else
-    # tmux内
-    tmux switch-client -t "$session"
-  fi
-}
-
-vssh() {
-  local session="ssh_config"
-  local dir="$HOME/.ssh/"
-
-  # セッションが存在するかチェック
-  if ! tmux has-session -t "$session" 2>/dev/null; then
-    # セッションが無い場合は作成（最初のウィンドウでnvim起動）
-    tmux new-session -d -s "$session" -c "$dir"
-  fi
-
-  if [ -z "$TMUX" ]; then
-    # tmux外
-    tmux attach -t "$session"
-  else
-    # tmux内
-    tmux switch-client -t "$session"
-  fi
-}
-
-####################
 # Misc
 ####################
-yd() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-	command yazi "$@" --cwd-file="$tmp"
-	IFS= read -r -d '' cwd < "$tmp"
-	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
-	rm -f -- "$tmp"
-}
-
-g() {
-  if [ $# -eq 0 ]; then
-    echo "usage: g 文字列1 文字列2 ..."
-    return 1
-  fi
-
-  log_file="${HOME}/Documents/web_search.log"
-  local url="$1"
-  local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-
-  if [[ $url == http* ]]; then
-    # httpから始まる場合、urlをopenコマンドで開く
-    open "$url"
-    echo "$timestamp $url" >> "$log_file"
-  else
-    # httpから始まらない場合、url encodeしてGoogle検索を行う
-    local query
-    query=$(python3 - <<'EOF' "$@"
-import sys, urllib.parse
-print("+".join(urllib.parse.quote(s) for s in sys.argv[1:]))
-EOF
-)
-
-  local url="https://duckduckgo.com/?q=${query}"
-  open "$url"
-  echo "$timestamp $url" >> "$log_file"
-  fi
-}
-
-
-see() {
-  # 引数なしの場合: カレントディレクトリ直下を fzf で選択
-  if [ "$#" -eq 0 ]; then
-    local selected
-    selected=$(ls -1A | fzf --prompt="see> ")
-    [ -n "$selected" ] && see "$selected"
-    return
-  fi
-
-  for file in "$@"; do
-    [ -e "$file" ] || { echo "see: $file not found" >&2; continue; }
-
-    # ディレクトリの場合
-    if [ -d "$file" ]; then
-      ls -alh --total-size "$file"
-      continue
+py() {
+    if [[ -f "pyproject.toml" ]]; then
+        uv run python "$@"
+        return
     fi
 
-    ext=$(printf '%s\n' "$file" | tr '[:upper:]' '[:lower:]')
-
-    case "$ext" in
-      # 画像・PDF
-      *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.webp|*.tiff|*.tif)
-        timg -pk "$file"
-        ;;
-      *.pdf|*.doc|*.docx|*.ppt|*.pptx)
-        open "$file"
-        ;;
-      # 表形式
-      *.tsv|*.csv|*.xls|*.xlsx)
-        tw "$file"
-        ;;
-      # JSON
-      *.json)
-        fx "$file"
-        ;;
-      # その他テキスト
-      *)
-        bat "$file"
-        ;;
-    esac
-  done
-}
-
-vide() {
-  GRID=$(($(tput lines) / 12))
-
-  D_GRID=$(($GRID * 2))
-  T_GRID=$(($GRID * 3))
-  Q_GRID=$(($GRID * 4))
-  MAIN_GRID=$(($(tput lines) - $T_GRID - 1))
-
-  # ---- pyscn を除去 ----
-  tmux send-key "uv add --dev fabric ruff rich ipython pytest" C-m
-
-  tmux set pane-border-lines double
-  tmux set pane-border-style "fg=color239"
-  tmux set pane-active-border-style "fg=color242"
-
-  tmux split-window -h
-  tmux resize-pane -x 64
-
-  tmux split-window -v
-  tmux select-pane -U
-  tmux resize-pane -y $GRID
-
-  # fab sync
-  tmux send-key 'gaze -c "uv run fab sync" "src/**/*.py"' C-m
-  tmux select-pane -D
-
-  # ---- jupyter 判定 ----
-  HAS_JUPYTER=$(uv pip list 2>/dev/null | awk '{print $1}' | grep -i '^jupyter$')
-
-  if [ -n "$HAS_JUPYTER" ]; then
-    tmux split-window -v
-    tmux select-pane -U
-    tmux resize-pane -y $GRID # 1/12
-    tmux send-key 'uv run jupyter notebook' C-m
-    tmux select-pane -D
-  fi
-
-  # fab lint pane (4/12)
-  tmux split-window -v
-  tmux select-pane -U
-  tmux resize-pane -y $Q_GRID
-  tmux send-key 'gaze -c "uv run fab lint" "src/**/*.py"' C-m
-  tmux select-pane -D
-
-  # ---- pyscn 用だった pane（7/12）を空で確保 ----
-  tmux split-window -v
-  tmux select-pane -U
-  tmux resize-pane -y $Q_GRID
-  tmux send-key 'clear' C-m # 何も実行しないが pane は維持
-  tmux select-pane -D
-
-  # ipython (10/12)
-  tmux resize-pane -y $T_GRID
-  tmux send-key 'uv run ipython' C-m
-
-  tmux select-pane -L
-  tmux split-window -v
-  tmux select-pane -D
-  tmux resize-pane -y $MAIN_GRID
-  tmux select-pane -U
-  tmux send-key copilot -C-m
-  # tmux send-key 'uv tool run aider --model "gpt-4.1" --dark-mode --code-theme dracula --watch-files' C-m
-
-  tmux select-pane -U
-}
-
-# Shell-GPT integration ZSH v0.2
-_sgpt_zsh() {
-if [[ -n "$BUFFER" ]]; then
-    _sgpt_prev_cmd=$BUFFER
-    BUFFER+="⌛"
-    zle -I && zle redisplay
-    BUFFER=$(sgpt --shell <<< "$_sgpt_prev_cmd" --no-interaction)
-    zle end-of-line
-fi
-}
-zle -N _sgpt_zsh
-bindkey ^l _sgpt_zsh
-
-alerm() {
-  local m=0
-
-  while getopts ":m:" opt; do
-    case ${opt} in
-      m )
-        m=$OPTARG
-        ;;
-      \? )
-        echo "Usage: alerm -m <minutes>"
-        return 1
-        ;;
-    esac
-  done
-
-  if [ "$m" -le 0 ]; then
-    echo "Please provide a positive number of minutes using -m."
-    return 1
-  fi
-
-  sleep $((60 * m))
-  
-  # Platform-specific notification
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    for i in $(seq 1 5); do
-      say "${m}分たちました"
-      sleep 1
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        if [[ -f "$dir/pyproject.toml" ]]; then
+            (cd "$dir" && uv run python "$@")
+            return
+        fi
+        dir="${dir:h}"
     done
-  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # Linux / WSL2
-    if grep -qi microsoft /proc/version 2>/dev/null; then
-      # WSL2 - use Windows notification
-      for i in $(seq 1 5); do
-        echo "${m}分たちました"
-        sleep 1
-      done
-    else
-      # Pure Linux - try spd-say or notify-send
-      if command -v spd-say &> /dev/null; then
-        for i in $(seq 1 5); do
-          spd-say "${m}分たちました"
-          sleep 1
-        done
-      elif command -v notify-send &> /dev/null; then
-        notify-send -u critical "Timer" "${m}分たちました"
-      else
-        for i in $(seq 1 5); do
-          echo "${m}分たちました"
-          sleep 1
-        done
-      fi
+
+    python "$@"
+}
+
+ipy() {
+    if [[ -f "pyproject.toml" ]]; then
+        uv run ipython "$@"
+        return
     fi
-  else
-    # Fallback for Windows native or other systems
-    for i in $(seq 1 5); do
-      echo "${m}分たちました"
-      sleep 1
+
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        if [[ -f "$dir/pyproject.toml" ]]; then
+            (cd "$dir" && uv run ipython "$@")
+            return
+        fi
+        dir="${dir:h}"
     done
-  fi
+
+    ipython "$@"
 }
 
 ##############################

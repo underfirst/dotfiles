@@ -1,0 +1,68 @@
+[tasks.vs]
+description = "snippets用のNeovim tmuxセッションを開く"
+interactive = true
+run = '''
+#!/usr/bin/env zsh
+session=snippets
+dir="$HOME/Documents/snippets/"
+if ! tmux has-session -t "$session" 2>/dev/null; then
+  tmux new-session -d -s "$session" -c "$dir" nvim
+fi
+if [ -z "$TMUX" ]; then
+  tmux attach -t "$session"
+else
+  tmux switch-client -t "$session"
+fi
+'''
+
+[tasks.vm]
+description = "Memo用のNeovim tmuxセッションを開く"
+interactive = true
+run = '''
+#!/usr/bin/env zsh
+session=memo
+dir="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Memo"
+if ! tmux has-session -t "$session" 2>/dev/null; then
+  tmux new-session -d -s "$session" -c "$dir"
+  nvim
+fi
+if [ -z "$TMUX" ]; then
+  tmux attach -t "$session"
+else
+  tmux switch-client -t "$session"
+fi
+'''
+
+[tasks.vd]
+description = "dotfiles用のNeovim tmuxセッションを開く"
+interactive = true
+run = '''
+#!/usr/bin/env zsh
+session=dotfiles
+dir="$HOME/dotfiles/"
+if ! tmux has-session -t "$session" 2>/dev/null; then
+  tmux new-session -d -s "$session" -c "$dir"
+fi
+if [ -z "$TMUX" ]; then
+  tmux attach -t "$session"
+else
+  tmux switch-client -t "$session"
+fi
+'''
+
+[tasks.vssh]
+description = "SSH設定用のNeovim tmuxセッションを開く"
+interactive = true
+run = '''
+#!/usr/bin/env zsh
+session=ssh_config
+dir="$HOME/.ssh/"
+if ! tmux has-session -t "$session" 2>/dev/null; then
+  tmux new-session -d -s "$session" -c "$dir"
+fi
+if [ -z "$TMUX" ]; then
+  tmux attach -t "$session"
+else
+  tmux switch-client -t "$session"
+fi
+'''

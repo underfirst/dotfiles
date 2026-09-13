@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#MISE description="src/ の変更時に sync を再実行する（.gitignore を尊重）"
+#MISE raw=true
+#MISE tools.watchexec="latest"
+#USAGE flag "--dry-run" help="同期内容を表示するだけにする"
+#USAGE flag "--reverse" help="remote/container から local へ同期する"
+#USAGE flag "--include-data" help="data/ も同期する"
+#USAGE flag "--include-root" help="ルート直下のファイルも同期する"
+args=()
+[[ "${usage_dry_run:-false}" == "true" ]] && args+=(--dry-run)
+[[ "${usage_reverse:-false}" == "true" ]] && args+=(--reverse)
+[[ "${usage_include_data:-false}" == "true" ]] && args+=(--include-data)
+[[ "${usage_include_root:-false}" == "true" ]] && args+=(--include-root)
+exec mise watch sync --watch src --exts py --postpone --on-busy-update=queue -- "${args[@]}"

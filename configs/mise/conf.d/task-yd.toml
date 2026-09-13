@@ -1,0 +1,15 @@
+[tasks.yd]
+description = "yaziを起動し、終了時に移動先を出力する"
+interactive = true
+dir = "{{cwd}}"
+run = '''
+#!/usr/bin/env zsh
+cd "${MISE_ORIGINAL_CWD:-$PWD}"
+tmp=$(mktemp -t "yazi-cwd.XXXXXX")
+trap 'rm -f -- "$tmp"' EXIT
+command yazi "$@" --cwd-file="$tmp"
+if [ -s "$tmp" ]; then
+  IFS= read -r -d '' cwd < "$tmp"
+  [ -n "$cwd" ] && print -r -- "$cwd"
+fi
+'''

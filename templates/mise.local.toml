@@ -1,0 +1,17 @@
+# このファイルを Python プロジェクトの mise.local.toml として保存し、Git 管理から除外する。
+# ローカルの ~/path/to/project は、既定ではリモート側でも同じ相対位置へ同期される。
+
+[env]
+# SSH サーバーへ同期する場合
+SYNC_TRANSPORT = "ssh"
+SYNC_HOST = "gpu"
+# SSH では既定値 "~"。例: ~/path/to/project
+# SYNC_REMOTE_ROOT = "~"
+
+# Docker コンテナへ同期する場合はこちらに切り替える。
+# SYNC_TRANSPORT = "docker"
+# SYNC_CONTAINER = "my-python-container"
+# SYNC_REMOTE_ROOT = "/app" # 例: /app/path/to/project
+
+# ローカルの $HOME 外のプロジェクト、または完全な同期先を指定したい場合。
+# SYNC_PROJECT_PATH = "/absolute/path/to/project"

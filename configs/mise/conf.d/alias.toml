@@ -1,0 +1,28 @@
+[shell_alias]
+c = "clear"
+gg = "lazygit"
+gd = 'cd $(ghq list --full-path | fzf)'
+f = "find . -name"
+l = 'ls -alh'
+ls = "eza --icons --git"
+la = "eza -la --icons --git"
+ll = "eza -aahl -icons --git"
+p = "pueue"
+q = "exit"
+t = "tmux"
+vi = "nvim"
+".." = "cd .."
+"..." = "cd ../.."
+"...." = "cd ../../.."
+"....." = "cd ../../../.."
+"p/" = "cd $(git rev-parse --show-toplevel)"
+
+tkw = "mise run tkw"
+yd = "mise run yd"
+see = "mise run see"
+fkill = "mise run fkill"
+g = "mise run g"
+vide = "mise run vide"
+vd = "mise run vd"
+vssh = "mise run vssh"
+vm = "mise run vm"

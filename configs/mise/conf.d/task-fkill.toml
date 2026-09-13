@@ -1,0 +1,10 @@
+[tasks.fkill]
+description = "fzfでプロセスを選択して終了"
+interactive = true
+run = '''
+#!/usr/bin/env zsh
+signal=9
+[ -n "$1" ] && signal="$1"
+pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+[ -n "$pid" ] && print -r -- "$pid" | xargs kill -"$signal"
+'''

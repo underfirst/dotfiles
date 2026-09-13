@@ -1,0 +1,3 @@
+[tasks.hello]
+run = "echo hello from mise"
+description = "Check that task execution works"

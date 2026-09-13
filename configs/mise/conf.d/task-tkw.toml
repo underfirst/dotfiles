@@ -1,0 +1,11 @@
+[tasks.tkw]
+description = "fzfでtmuxセッションを選択して終了"
+interactive = true
+run = '''
+#!/usr/bin/env zsh
+sessions="$(tmux ls | fzf --exit-0 --multi)" || exit $?
+while IFS= read -r session; do
+  name=$(printf '%s\n' "$session" | cut -d: -f1)
+  [ -n "$name" ] && tmux kill-session -t "$name"
+done <<< "$sessions"
+'''

@@ -1,0 +1,24 @@
+[tasks.g]
+description = "URLを開くか、引数をDuckDuckGo検索する"
+run = '''
+#!/usr/bin/env zsh
+if [ "$#" -eq 0 ]; then
+  print -u2 "usage: mise g <URL or search words...>"
+  exit 1
+fi
+
+mkdir -p "$HOME/Documents"
+log_file="$HOME/Documents/web_search.log"
+timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+url="$1"
+
+if [[ "$url" == http* ]]; then
+  open "$url"
+else
+  query=$(python3 -c 'import sys, urllib.parse; print("+".join(urllib.parse.quote(s) for s in sys.argv[1:]))' "$@")
+  url="https://duckduckgo.com/?q=$query"
+  open "$url"
+fi
+
+print -r -- "$timestamp $url" >> "$log_file"
+'''
