@@ -1,4 +1,5 @@
 [tasks.g]
+hide = true
 description = "URLを開くか、引数をDuckDuckGo検索する"
 run = '''
 #!/usr/bin/env zsh

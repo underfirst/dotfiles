@@ -1,4 +1,5 @@
 [tasks.see]
+hide = true
 description = "ファイルを種類に応じたCLIで表示する"
 interactive = true
 dir = "{{cwd}}"

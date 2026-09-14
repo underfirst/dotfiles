@@ -1,4 +1,5 @@
 [tasks.tkw]
+hide = true
 description = "fzfでtmuxセッションを選択して終了"
 interactive = true
 run = '''

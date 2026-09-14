@@ -1,4 +1,5 @@
 [tasks.yd]
+hide = true
 description = "yaziを起動し、終了時に移動先を出力する"
 interactive = true
 dir = "{{cwd}}"

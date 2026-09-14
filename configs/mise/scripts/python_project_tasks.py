@@ -15,9 +15,9 @@ from pathlib import Path
 import tomllib
 
 
-def run(command: list[str]) -> None:
+def run(command: list[str], *, cwd: Path | None = None) -> None:
     print("+", shlex.join(command))
-    subprocess.run(command, check=True)
+    subprocess.run(command, check=True, cwd=cwd)
 
 
 def task_root() -> Path:
@@ -30,7 +30,14 @@ def task_root() -> Path:
 
 
 def project_root() -> Path:
-    return Path(os.environ.get("MISE_PROJECT_ROOT", Path.cwd())).resolve()
+    # グローバル task では MISE_PROJECT_ROOT が mise の設定ルートを
+    # 指すことがあるため、呼び出し元ディレクトリを優先する。
+    return Path(
+        os.environ.get(
+            "MISE_ORIGINAL_CWD",
+            os.environ.get("MISE_PROJECT_ROOT", Path.cwd()),
+        )
+    ).resolve()
 
 
 def empty_or_missing(path: Path) -> bool:
@@ -242,12 +249,16 @@ def sync(args: argparse.Namespace) -> None:
 
 
 def lint(_: argparse.Namespace) -> None:
-    run(["uv", "run", "ruff", "check", "--fix", "src/"])
+    run(["uv", "run", "ruff", "check", "--fix", "src/"], cwd=project_root())
 
 
 def migrate(args: argparse.Namespace) -> None:
-    run(["uv", "run", "alembic", "revision", "--autogenerate", "-m", args.message])
-    run(["uv", "run", "alembic", "upgrade", "head"])
+    base = project_root()
+    run(
+        ["uv", "run", "alembic", "revision", "--autogenerate", "-m", args.message],
+        cwd=base,
+    )
+    run(["uv", "run", "alembic", "upgrade", "head"], cwd=base)
 
 
 def parser() -> argparse.ArgumentParser:
