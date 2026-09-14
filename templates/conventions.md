@@ -274,3 +274,185 @@ lint の自動修正で意図しないファイルが変更されていないか
 - 必要なデータを `data/samples/` に追加したか.
 - 外部 API や LLM に接続するテストになっていないか.
 - `uv run pytest -q`, `uv run ruff check --fix`, `git diff --check` が通るか.
+
+## 命名規則
+
+### 基本形
+
+- ファイル, ディレクトリ, Python の module / package: `lower_snake_case`.
+- クラス, 例外, enum: `UpperCamelCase`.
+- 関数, メソッド, 引数, property, ローカル変数: `lower_snake_case`.
+- 定数, 環境変数, shell の readonly variable: `UPPER_SNAKE_CASE`.
+- Markdown, TOML, YAML, JSON の自作 key は `lower_snake_case` を基本とする.
+- ただし, 外部ツールが要求する field 名, key 名, API 名は変更しない.
+- 略語は小文字の単語として扱う: `http_client`, `llm_model`, `url`.
+- collection は複数形, 真偽値は `is_`, `has_`, `can_`, `should_` で始める.
+- ID は `item_id` / `item_ids`, text は `text` / `texts` のように, 単数・複数を返り値の形へ合わせる.
+
+### 低水準処理と高水準処理
+
+命名時は, まず処理の粒度を低水準または高水準に分類する.
+
+低水準処理とは, 外部システム, ファイル, データ表現, 個別のデータ操作との境界を扱う処理である.
+一つの明確な操作を担当し, 名前は実際に行う操作を表す.
+
+```python
+html = fetch_page(url)
+document = parse_html(html)
+text = extract_text(document)
+text = normalize_text(text)
+records = read_records(path)
+train_records, valid_records = split_dataset(records)
+```
+
+高水準処理とは, 複数の低水準処理を組み合わせて, ある業務上の目的を達成する処理である.
+内部の手順をすべて名前へ列挙せず, 最終的な目的を名前へ含める.
+
+```python
+def prepare_dataset(source_path: Path) -> Dataset:
+    """データを読み込み, クリーニングと分割を行って学習用に準備する."""
+    ...
+
+
+def train_model(dataset: Dataset, config: TrainConfig) -> Model:
+    """モデルを学習し, validation と checkpoint 保存まで行う."""
+    ...
+
+
+def evaluate_model(model: Model, dataset: Dataset) -> EvaluationReport:
+    """モデルを複数の指標で評価し, レポートを返す."""
+    ...
+```
+
+`process`, `handle`, `get_result`, `do_task` のような名前は, 高水準処理であっても避ける.
+`prepare_dataset`, `train_model`, `evaluate_model` のように業務上の目的を具体化する.
+
+低水準処理を高水準関数へまとめること自体は問題ない.
+ただし, 高水準関数の内部では低水準処理を標準語彙で命名し, 責務を分ける.
+
+### 標準動詞
+
+同じ意味に複数の動詞を使わない.
+
+#### 外部データと入出力
+
+- `request`: HTTP request を実行する: `request_json`.
+- `fetch`: HTTP/API からデータを取得する: `fetch_page`.
+- `crawl`: 複数の URL や page を巡回して収集する: `crawl_site`.
+- `download`: 外部から file や binary を取得する: `download_model`.
+- `read`: file や stream の内容を読む: `read_config`.
+- `load`: 保存済みデータ, model, 設定を復元する: `load_checkpoint`.
+- `write`: file や stream へ書き込む: `write_text`.
+- `save`: データや model を永続化する: `save_results`.
+- `export` / `import`: 外部利用形式へ出す / 外部形式を取り込む: `export_onnx`.
+
+`fetch` は network, `read` は stream, `load` は復元, `download` は file 取得に限定する.
+`get`, `retrieve`, `obtain`, `pull` はこれらの代わりに使わない.
+
+#### 構造化とテキスト
+
+- `parse`: 文字列, bytes, response を構造化する: `parse_html`.
+- `extract`: 構造化データから一部を取り出す: `extract_links`.
+- `clean`: ノイズ, 不正値, 不要要素を除去する: `clean_records`.
+- `normalize`: 意味を保ったまま表記, 形式, scale を揃える: `normalize_text`.
+- `validate`: 入力や結果が要件を満たすか検証する: `validate_config`.
+- `tokenize` / `detokenize`: text と token 列を相互変換する: `tokenize_text`.
+- `encode` / `decode`: 符号化表現を相互変換する: `encode_labels`.
+- `convert`: 入出力表現を名前へ明示して変換する: `convert_tokens_to_ids`.
+- `to_<target>` / `from_<source>`: 型・形式の変換 / 構築: `to_numpy`, `from_dict`.
+
+`parse` は構造化まで, `extract` は取り出しまで, `clean` は除去までとする.
+取得, parse, text 抽出, normalize を一つの低水準関数へ詰め込まない.
+複数段階をまとめる必要がある場合は, 高水準の `prepare_page_text` のように最終目的を名前へ含める.
+
+#### データセットと分析
+
+- `select`: 列, 行, 項目を選ぶ: `select_columns`.
+- `filter`: 条件に合う要素だけを残す: `filter_records`.
+- `drop`: 指定要素を除去する: `drop_missing_rows`.
+- `sort` / `shuffle`: 順序を並べ替える / 無作為化する: `sort_records`.
+- `sample`: 全体から標本を抽出する: `sample_records`.
+- `split`: データを複数の集合へ分ける: `split_dataset`.
+- `group`: key ごとにまとめる: `group_records`.
+- `merge` / `join`: データを結合する: `merge_records`.
+- `reshape`: 形状や axis を変える: `reshape_features`.
+- `aggregate`: 集合を統計量や代表値へまとめる: `aggregate_metrics`.
+- `summarize`: 結果を人間向けの要約にする: `summarize_results`.
+
+`select` は選択, `filter` は条件による絞り込み, `drop` は除去とする.
+`merge` と `join` はデータ結合に使い, 曖昧な `combine` は使わない.
+
+#### ML と LLM
+
+- `prepare`: 次工程に使える状態へ整える: `prepare_dataset`.
+- `build`: 部品や設定から組み立てる: `build_model`.
+- `initialize`: 初期状態を作る: `initialize_model`.
+- `train`: 学習工程全体を実行する: `train_model`.
+- `fit`: estimator がデータから parameter を推定する: `fit_scaler`.
+- `fine_tune`: 既存 model を追加学習する: `fine_tune_model`.
+- `tune`: hyperparameter や設定を探索する: `tune_model`.
+- `evaluate`: 複数指標や report で性能を測る: `evaluate_model`.
+- `score`: 単一の評価値を計算する: `score_predictions`.
+- `benchmark`: 条件を揃えて複数対象を比較する: `benchmark_models`.
+- `infer`: 汎用的に model output を得る: `infer_batch`.
+- `predict`: 分類・回帰などの予測値を得る: `predict_labels`.
+- `generate`: 新しい text や data を生成する: `generate_text`.
+- `embed`: embedding 表現へ写像する: `embed_documents`.
+- `retrieve` / `rank`: 候補を取得する / 順位付けする: `retrieve_documents`, `rank_documents`.
+
+`train` は複数の batch 処理, logging, checkpoint, validation などを含む学習工程全体とする.
+estimator の単一操作は `fit` とし, hyperparameter 探索は `tune` とする.
+`evaluate` は複数指標や report を返してよく, `score` は単一 score を返す.
+`infer` は汎用的な推論, `predict` は予測, `generate` は生成に限定する.
+
+#### API とアプリケーション
+
+- `create` / `read` / `update` / `delete`: resource の CRUD 操作.
+- `search`: 条件に合う候補を検索する: `search_documents`.
+- `resolve`: ID や設定を実体へ解決する: `resolve_model_path`.
+- `run`: pipeline, job, command 全体を実行する: `run_evaluation`.
+- `serve`: API や UI を起動して提供する: `serve_app`.
+
+FastAPI の endpoint は `create_item`, `read_items`, `update_item`, `delete_item` のように命名する.
+Gradio の callback は UI event ではなく, `predict`, `search_documents`, `generate_answer` のように実際の機能を表す.
+
+### クラスとメソッド
+
+クラス名は所有する状態, 依存性, 概念を表し, メソッド名はその対象への操作を表す.
+クラス名で明らかな対象をメソッド名へ繰り返さない.
+
+```python
+def train_model(dataset: Dataset, config: TrainConfig) -> Model:
+    ...
+
+
+class ModelTrainer:
+    def train(self, dataset: Dataset) -> Model:
+        ...
+
+
+class ModelEvaluator:
+    def evaluate(self, dataset: Dataset) -> EvaluationReport:
+        ...
+```
+
+関数では対象語を含める: `train_model`, `parse_html`, `crawl_site`.
+クラスの method では対象語を省略する: `ModelTrainer.train`, `PageParser.parse`, `WebCrawler.crawl`.
+`ModelTrainer.train_model` や `WebCrawler.crawl_web` のような重複は避ける.
+
+状態を持たない処理は関数, 設定・外部 client・model・cache を保持する処理はクラスとする.
+`Reader`, `Parser`, `Loader`, `Client`, `Dataset`, `Trainer`, `Evaluator`, `Retriever` は, 状態や依存性を持つクラスの接尾辞に限る.
+
+### 引数と property
+
+- 引数は型ではなく役割を表す: `url`, `html`, `records`, `features`, `labels`, `model`, `dataset`.
+- `input`, `output`, `data`, `result`, `value` は具体化できない adapter 境界だけで使う.
+- property は値や状態, action は method とする. `model.is_ready` はよいが, `model.load()` を property にしない.
+
+### 命名時の確認手順
+
+1. 低水準の境界処理か, 高水準の業務処理かを決める.
+2. 返り値がデータか, 状態変更か, 実行結果かを決める.
+3. 上の標準語彙から動詞を一つ選ぶ.
+4. 関数なら対象語を追加し, class method なら class 名との重複を削る.
+5. `process`, `get_result`, `do_inference` のような曖昧語を, `prepare_dataset`, `evaluate_model`, `infer_batch` などへ具体化できないか確認する.
