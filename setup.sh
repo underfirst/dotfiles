@@ -94,6 +94,7 @@ git config --global rerere.enabled true
 git config --global fetch.prune true
 git config --global rebase.autoStash true
 git config --global core.editor "nvim"
+git config --global core.excludesFile ~/.config/git/ignore
 
 # nvim headless setup
 nvim --headless "+Lazy! sync" +qa
