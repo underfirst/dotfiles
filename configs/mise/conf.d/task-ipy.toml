@@ -1,0 +1,22 @@
+[tasks.ipy]
+hide = true
+description = "pyproject.tomlに応じてIPythonを起動する"
+interactive = true
+dir = "{{cwd}}"
+run = '''
+#!/usr/bin/env zsh
+setopt local_options
+cd "${MISE_ORIGINAL_CWD:-$PWD}" || exit 1
+
+project_dir="$PWD"
+while :; do
+  if [[ -f "$project_dir/pyproject.toml" ]]; then
+    cd "$project_dir" || exit 1
+    exec uv run ipython "$@"
+  fi
+  [[ "$project_dir" == "/" ]] && break
+  project_dir="${project_dir:h}"
+done
+
+exec ipython "$@"
+'''

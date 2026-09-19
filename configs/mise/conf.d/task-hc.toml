@@ -1,0 +1,21 @@
+[tasks.hc]
+hide = true
+description = "履歴からコマンドを選択してクリップボードにコピーする"
+interactive = true
+dir = "{{cwd}}"
+run = '''
+#!/usr/bin/env zsh
+setopt local_options
+
+selected=$(cat "$HOME/.zsh_history" | fzf) || exit $?
+
+if [[ "$OSTYPE" == linux-gnu* ]]; then
+  if grep -qi microsoft /proc/version 2>/dev/null; then
+    print -r -- "$selected" | clip.exe
+  elif command -v xclip >/dev/null 2>&1; then
+    print -r -- "$selected" | xclip -i -selection clipboard
+  fi
+else
+  print -r -- "$selected" | pbcopy
+fi
+'''
