@@ -4,7 +4,8 @@
 
 ## 基本方針
 
-- Python パッケージは `src` レイアウトで管理する.
+- python パッケージはuvを使って管理する.
+- プロジェクトは `src` レイアウトで管理する.
 - CLI は入出力の定義だけを担当し, 機能本体は controller などのアプリケーション層に置く.
 - 個別 feature は原則として独立させる. feature 間で直接 import せず, 共通処理は共通ディレクトリへ移動する.
 - 外部 API, LLM, ファイルシステムなどの境界は controller から扱い, 純粋な変換処理は小さな関数へ分離する.
@@ -34,7 +35,6 @@
 │       └── utils/
 ├── tests/
 │   └── <package_name>/
-:w
 └── pyproject.toml
 ```
 
@@ -46,13 +46,87 @@
 - `data/`: 複数 feature から利用するデータ処理. データ専用の型や変換処理を置く.
 - `features/`: 個別機能の実装. feature 内に `configs`, `controllers`, `data`, `utils` などを置く.
 - `models/`: Pydantic model など, 複数箇所で共有するデータモデル.
-- `utils/`: 複数 feature から利用する小さな汎用関数.
+- `utils/`: controllersや feature から利用する小さな汎用関数.
 
-機能が複雑になった場合は, `features/<feature_name>/controllers/<controller_name>.py` のようにディレクトリを分割する.
-小規模な場合は `controllers.py` などの単一ファイルでよい.
+controllers, data, modelsを以下では機能実装モジュールと呼ぶ.
+通常は機能実装モジュールはディレクトリを切っているものとする.
 
-feature 固有の処理を別 feature から直接 import してはならない.
-共通化すべき処理は `src/<package_name>/controllers`, `data`, `models`, `utils` のいずれかへ移す.
+### `src/<package_name>` 以下の補足説明
+
+src以下の一部モジュールについて補足な説明を以下に与える.
+
+#### `src/<package_name>/configs/`
+
+const.pyとdatapath.pyを持つ.
+
+環境変数や `.env` から読み込む値は, 各利用箇所で直接取得せず, `src/<package_name>/configs/const.py` に定数として集約する.
+`.env` の読み込みと `os.environ` へのアクセスは `const.py` に限定し, 利用側は定数を import して使う.
+`.env` の場所は `datapath.py` で定義した `ENV_PATH` を利用する.
+
+```python
+# src/<package_name>/configs/const.py
+import os
+
+from dotenv import load_dotenv
+
+from <package_name>.configs.datapath import ENV_PATH
+
+load_dotenv(ENV_PATH)
+
+SOME_SECRET = os.environ.get("SOME_SECRET", "")
+```
+
+```python
+# src/<package_name>/controllers/client.py
+from <package_name>.configs.const import SOME_SECRET
+```
+
+- 秘密情報をソースコードへ直書きしない.
+- `SOME_SECRET` のような任意設定は `os.environ.get("SOME_SECRET", "")` のように `const.py` でデフォルト値を定義する.
+- 起動に必須な値は空文字をデフォルトにせず, `os.environ["SOME_SECRET"]` または明示的な検証で未設定をエラーにする.
+- 同じ環境変数を複数モジュールで個別に読み込まない.
+- 定数名は大文字の `UPPER_SNAKE_CASE` とする.
+- `const.py` に読み込み処理を集約することで, 設定値の取得方法と利用箇所を分離する.
+
+プロジェクト全体で使う Path は `src/<package_name>/configs/datapath.py` に `pathlib.Path` で定義する.
+`PROJECT_ROOT`, `DATA_DIR`, `ENV_PATH` などをここへ置き, 他のモジュールで import して使う.
+環境変数の値そのものは `datapath.py` へ置かず, `const.py` で読み込む.
+
+#### `src/<package_name>/cli/`
+
+typerを使ってcliを定義する.
+typerは以下のように簡単に関数を定義することでcliを実装できる.
+
+```python
+from typer import Typer
+from path.to.some_command_operation import some_command_operation
+
+app = Typer()
+
+@app.command()
+def some_command(...):
+  some_command_operation(...)
+```
+
+`src/<package_name>/cli/main:app` にpackageのcliを集約する.
+CLI の定義と機能本体を分離する.
+`src/<package_name>/cli/main.py` で app の構築と sub-command の登録だけを行い, 
+詳細な処理は, `src/<package_name>/`や, `src/<package_name>/features/<feature_name>/` 以下の機能実装モジュールにに実装する.
+また, commandが3つ以上の場合, コマンドごとに, `src/<package_name>/cli/<command_name>.py`にて, typerのappを作成し,
+作成したコマンドを, `src/<package_name>/cli/main.py`にimportして, `app.add_typer(command_app)`のように紐付ける.
+
+#### `src/<package_name>/features/<feature_name>/`
+
+`src/<package_name>/`直下の機能実装モジュールが複雑になった場合は, `src/<package_name>/features/<feature_name>/`以下に,
+機能実装モジュールや, そのfeature専用の`configs/`, `utils/`を作成する.
+例えば, `src/<package_name>/features/<feature_name>/controllers/<controller_name>.py` のようにディレクトリを分割する.
+ただし, `src/<package_name>/features/<feature_name>/controllers/`以下の機能実装モジュールが小規模な場合は `features/<feature_name>/controllers.py` などのファイルで機能実装モジュールを作成してもよい.
+
+feature 固有の処理を`src/<package_name>/`直下の機能実装モジュールなどから呼び出してはいけない.
+また, feature固有の処理は, 別 feature から直接 import してはならない.
+つまり, `src/<package_name>/features/features1/`以下のモジュールを, `src/<package_name>/features/features2/`内でimportしてはいけない.
+feature間で共通化すべき処理は `src/<package_name>` 直下の機能実装モジュールに移す.
+
 
 ### `tests/<package_name>`
 
@@ -87,7 +161,7 @@ import を関数内に置かない.
 
 ### docstring
 
-関数, メソッド, クラス, モジュールには必要な docstring を付ける.
+全ての関数, メソッド, クラス, モジュールに必ず docstring を付ける.
 関数とメソッドの docstring は Google docstring style とし, 日本語で記述する.
 
 - 文体はだである調とする.
@@ -110,60 +184,6 @@ def safe_name(value: str) -> str:
         ファイル名として利用できる文字列.
     """
 ```
-
-### CLI と機能本体
-
-CLI の定義と機能本体を分離する. `cli/main.py` では app の構築と sub-command の登録だけを行い, 詳細な処理は feature の controller に実装する.
-
-```python
-# src/<package_name>/cli/search.py
-from typer import Typer
-
-app = Typer()
-
-@app.command()
-def search(url: str, save_path: str) -> None:
-    """指定 URL を処理する."""
-    SearchController().run(url, save_path)
-```
-
-外部 API の response は controller の境界で検証し, 内部では型の明確な値として扱う.
-機密情報はソースコードへ直書きせず, `.env` と dotenv などを利用する.
-
-### 定数と環境変数
-
-環境変数や `.env` から読み込む値は, 各利用箇所で直接取得せず, `src/<package_name>/configs/const.py` に定数として集約する.
-`.env` の読み込みと `os.environ` へのアクセスは `const.py` に限定し, 利用側は定数を import して使う.
-`.env` の場所は `datapath.py` で定義した `ENV_PATH` を利用する.
-
-```python
-# src/<package_name>/configs/const.py
-import os
-
-from dotenv import load_dotenv
-
-from <package_name>.configs.datapath import ENV_PATH
-
-load_dotenv(ENV_PATH)
-
-SOME_SECRET = os.environ.get("SOME_SECRET", "")
-```
-
-```python
-# src/<package_name>/controllers/client.py
-from <package_name>.configs.const import SOME_SECRET
-```
-
-- 秘密情報をソースコードへ直書きしない.
-- `SOME_SECRET` のような任意設定は `os.environ.get("SOME_SECRET", "")` のように `const.py` でデフォルト値を定義する.
-- 起動に必須な値は空文字をデフォルトにせず, `os.environ["SOME_SECRET"]` または明示的な検証で未設定をエラーにする.
-- 同じ環境変数を複数モジュールで個別に読み込まない.
-- 定数名は大文字の `UPPER_SNAKE_CASE` とする.
-- `const.py` に読み込み処理を集約することで, 設定値の取得方法と利用箇所を分離する.
-
-プロジェクト全体で使う Path は `src/<package_name>/configs/datapath.py` に `pathlib.Path` で定義する.
-`PROJECT_ROOT`, `DATA_DIR`, `ENV_PATH` などをここへ置き, `const.py` やその他のモジュールから import して使う.
-環境変数の値そのものは `datapath.py` へ置かず, `const.py` で読み込む.
 
 ### ロギング
 
@@ -253,7 +273,7 @@ private の複雑な処理がテスト対象として必要になった場合は
 
 ## 検証コマンド
 
-プロジェクトの依存管理に uv を使う場合は, 次のコマンドを標準とする.
+検証では次のコマンドを利用する.
 
 ```bash
 uv run pytest -q
@@ -275,7 +295,16 @@ lint の自動修正で意図しないファイルが変更されていないか
 - 外部 API や LLM に接続するテストになっていないか.
 - `uv run pytest -q`, `uv run ruff check --fix`, `git diff --check` が通るか.
 
+## 利用推奨ライブラリ
+
+- cli定義にはargparseではなくtyperを用いる.
+- loggerとしてはloggingではなくloguru.loggerを用いる.
+- 実行が長そうなループにはtqdm.auto.tqdm()を積極的に用いる. tqdmにはdescriptionを必ず書く.
+- 型定義にはpydanticを用いる. property定義では, AnnotatedとFieldを積極的に用いる.
+
 ## 命名規則
+
+Pythonコードの実装に統一感を持たせるため, ファイルやクラス, メソッド, 関数, プロパティなどの命名は以下の規則に従う.
 
 ### 基本形
 
