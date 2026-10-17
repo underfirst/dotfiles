@@ -1,4 +1,27 @@
 [task_config]
 # グローバルなプロジェクト操作タスク。各ファイルを独立させることで、
 # シェルの補完・ヘルプと実装本体を読みやすく保つ。
-includes = ["tasks"]
+includes = ["~/.config/mise/tasks"]
+
+# sync の長い説明は複数行でここに書き、実行処理は tasks/sync に置く。
+[tasks.sync]
+description = """
+プロジェクトの src/ を SSH または Docker へ同期する
+
+接続設定: プロジェクト直下の mise.local.toml に記載し、.gitignore に追加します。
+  [env]
+  SYNC_TRANSPORT = "ssh"
+  SYNC_HOST = "gpu"  # SSH の接続名
+  # Docker にする場合は以下に切り替え
+  # SYNC_TRANSPORT = "docker"
+  # SYNC_CONTAINER = "container-name"
+  # SYNC_REMOTE_ROOT = "/app"
+
+SYNC_REMOTE_ROOT は SSH では ~、Docker では /app が既定値です。
+ローカル $HOME 外のプロジェクトや別の同期先には
+SYNC_PROJECT_PATH = "/absolute/path" を指定します。
+
+例: mise run sync --dry-run で確認後、mise run sync で実行
+"""
+file = "tasks/sync"
+raw = true
